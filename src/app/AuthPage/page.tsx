@@ -1,15 +1,15 @@
 import Link from "next/link";
 
-export default function HomePage() {
+export default function AuthPage() {
   return (
     <main>
       <section className="flex flex-col gap-5">
-        <h1>Главная страница</h1>
+        <h1>Страница входа</h1>
         <nav>
           <ul>
             <li>
-              <Link href="/AuthPage" className="text-blue-500">
-                Авторизация
+              <Link href="/" className="text-blue-500">
+                Главная страница
               </Link>
             </li>
             <li>
