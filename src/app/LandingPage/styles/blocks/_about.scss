@@ -1,0 +1,8 @@
+@use '../helpers' as *;
+
+.main {
+    &__about {
+        padding-block: rem(36);
+        text-align: center;
+    }
+}
