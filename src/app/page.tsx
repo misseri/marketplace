@@ -1,25 +1,10 @@
-import Link from "next/link";
+import Header from "./components/MainPageHeader/page";
 
 export default function HomePage() {
   return (
-    <main>
-      <section className="flex flex-col gap-5">
-        <h1>Главная страница</h1>
-        <nav>
-          <ul>
-            <li>
-              <Link href="/AuthPage" className="text-blue-500">
-                Авторизация
-              </Link>
-            </li>
-            <li>
-              <Link href="/LandingPage" className="text-blue-500">
-                Лендинг
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      </section>
-    </main>
+    <>
+      <Header></Header>
+      <main className="mx-20 my-7.5 grid grid-cols-5 grid-rows-3"></main>
+    </>
   );
 }
