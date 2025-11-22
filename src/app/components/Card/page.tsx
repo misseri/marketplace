@@ -38,29 +38,31 @@ export default function Card({
   };
 
   return (
-    <div className="flex max-h-min max-w-50 flex-col justify-center gap-1 overflow-hidden rounded-2xl bg-white pb-2 shadow-md">
+    <div className="flex max-h-min max-w-50 flex-col justify-center gap-1 overflow-hidden rounded-2xl bg-white pb-2 shadow-md max-sm:max-h-min max-sm:min-w-40">
       <Link href="/CardPage">
         <img
           src={image || "no-image"}
           alt="card image"
-          className="min-h-60 min-w-50 bg-neutral-400"
+          className="min-h-60 min-w-50 bg-neutral-400 max-sm:min-h-40 max-sm:min-w-25"
         />
       </Link>
-      <div className="flex flex-col items-start justify-start px-5">
-        <span className="text-xl font-bold text-[#F62877]">{price} ₽</span>
-        <h3 className="overflow-hidden text-sm font-bold text-ellipsis whitespace-nowrap text-neutral-700">
+      <div className="flex flex-col items-start justify-start px-5 max-sm:px-2">
+        <span className="text-xl font-bold text-[#F62877] max-sm:text-[1rem]">
+          {price} ₽
+        </span>
+        <h3 className="overflow-hidden text-sm font-bold text-ellipsis whitespace-nowrap text-neutral-700 max-sm:text-[0.8rem]">
           {title}
         </h3>
       </div>
 
-      <div className="flex items-center justify-evenly gap-2 px-5">
+      <div className="flex items-center justify-evenly gap-2 px-5 max-sm:gap-1 max-sm:px-2">
         {isShowingCheck ? (
           <button
             className="flex w-full items-center justify-center rounded-md bg-[#F62877] px-1.5 py-1"
             onClick={handleBuyClick}
             disabled={true}
           >
-            <Check className="h-6 w-6 text-white" />
+            <Check className="h-6 w-6 text-white max-sm:h-5 max-sm:w-5" />
           </button>
         ) : isBought ? (
           <button
@@ -68,7 +70,7 @@ export default function Card({
             onClick={handleBuyClick}
             disabled={true}
           >
-            <span className="text-white">В корзине</span>
+            <span className="text-white max-sm:text-sm">В корзине</span>
           </button>
         ) : (
           <button
@@ -76,7 +78,7 @@ export default function Card({
             onClick={handleBuyClick}
             disabled={false}
           >
-            <span className="text-white">Купить</span>
+            <span className="text-white max-sm:text-sm">Купить</span>
           </button>
         )}
 

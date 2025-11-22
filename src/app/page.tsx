@@ -20,7 +20,7 @@ export default function HomePage() {
   return (
     <>
       <Header></Header>
-      <main className="mx-20 my-7.5 flex flex-wrap justify-center gap-15">
+      <main className="my-5 flex flex-wrap justify-center gap-15 max-sm:justify-center max-sm:gap-7 xl:mx-10">
         {products.map((product) => (
           <Card
             key={product.id}
