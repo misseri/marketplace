@@ -6,7 +6,11 @@ import {
   Menu,
   CircleUser,
   ShoppingCart,
+  ShoppingBasket,
   Store,
+  Heart,
+  Settings,
+  LogOut,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -49,7 +53,7 @@ export default function Header() {
 
       <div className="order-3 w-full min-w-0 rounded-2xl bg-neutral-200 px-3 py-1.5 sm:order-2 sm:w-auto sm:max-w-2xl sm:flex-1 sm:rounded-3xl sm:px-4 sm:py-2 md:px-5 lg:max-w-3xl xl:max-w-4xl">
         <div className="flex items-center justify-between gap-3 sm:gap-4 md:gap-5">
-          <Search className="h-full w-full flex-shrink-0 text-neutral-400 sm:h-5 sm:w-5" />
+          <Search className="h-5 w-5 flex-shrink-0 text-neutral-400 sm:h-5 sm:w-5" />
           <input
             type="text"
             placeholder="Поиск товара"
@@ -86,14 +90,27 @@ export default function Header() {
                   alignOffset={-10}
                 >
                   <DropdownMenuGroup>
-                    <DropdownMenuItem>Профиль</DropdownMenuItem>
-                    <DropdownMenuItem>Корзина</DropdownMenuItem>
-                    <DropdownMenuItem>Желаемое</DropdownMenuItem>
-                    <DropdownMenuItem>Настройки</DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <CircleUser />
+                      Профиль
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <ShoppingBasket />
+                      Корзина
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Heart />
+                      Желаемое
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Settings />
+                      Настройки
+                    </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut />
                       Выйти
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
