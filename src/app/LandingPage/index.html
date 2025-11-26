@@ -28,13 +28,13 @@
                     <nav class="header__menu">
                         <ul class="header__menu-list">
                             <li class="header__menu_item">
-                                <a href="#about" class="header__menu-link is-active">О проекте</a>
+                                <a href="#about" class="header__menu-link navlink is-active">О проекте</a>
                             </li>
                             <li class="header__menu_item">
-                                <a href="#possibilities" class="header__menu-link">Возможности</a>
+                                <a href="#possibilities" class="header__menu-link navlink">Возможности</a>
                             </li>
                             <li class="header__menu_item">
-                                <a href="#howitwork" class="header__menu-link">Как это работает</a>
+                                <a href="#howitwork" class="header__menu-link navlink">Как это работает</a>
                             </li>
                         </ul>
                     </nav>
@@ -57,7 +57,7 @@
     </header>
 
     <main class="main">
-        <section class="main__about" id="about">
+        <section class="main__about section" id="about">
             <div class="main__about-inner container">
                 <h1>Новый маркетплейс<br> для покупок и продаж</h1>
                 <p>Скоро запуск! Новая платформа для покупки и продажи любых товаров и услуг.<br>
@@ -78,7 +78,7 @@
                 </div>
             </div>
         </section>
-        <section class="main__possibilities" id="possibilities">
+        <section class="main__possibilities section" id="possibilities">
             <div class="main__possibilities-inner container">
                 <h2>Широкий выбор категорий</h2>
                 <p>Наша платформа будет поддерживать множество категорий товаров и услуг.</p>
@@ -102,28 +102,29 @@
                 </div>
             </div>
         </section>
-        <section class="main__work">
+        <section class="main__work section" id="howitwork">
             <div class="main__work-inner container">
                 <h2>Как это будет работать</h2>
                 <p>Начать работу будет просто. Следуйте этим простым шагам для покупки или продажи на нашей платформе</p>
-
-                <div class="main__work-card card">
-                    <div class="logo"></div>
-                    <span>1</span>
-                    <h3>Находите и выбирайте</h3>
-                    <p>Исследуйте тысячи уникальных товаров и услуг от проверенных продавцов со всей России.</p>
-                </div>
-                <div class="main__work-card card">
-                    <div class="logo"></div>
-                    <span>2</span>
-                    <h3>Размещайте объявления</h3>
-                    <p>Загружайте фото, устанавливайте цену и находите потенциальных покупателей.</p>
-                </div>
-                <div class="main__work-card card">
-                    <div class="logo"></div>
-                    <span>3</span>
-                    <h3>Безопасные сделки</h3>
-                    <p>Наслаждайтесь безопасными платежами с защитой покупателя.</p>
+                <div class="main__work-inner-cards">
+                    <div class="main__work-card card">
+                        <img src="img/vec7.svg" alt="">
+                        <span class="number">1</span>
+                        <h3>Находите и выбирайте</h3>
+                        <p>Исследуйте тысячи уникальных товаров и услуг от проверенных продавцов со всей России.</p>
+                    </div>
+                    <div class="main__work-card card">
+                        <img src="img/vec8.svg" alt="">
+                        <span class="number">2</span>
+                        <h3>Размещайте объявления</h3>
+                        <p>Загружайте фото, устанавливайте цену и находите потенциальных покупателей.</p>
+                    </div>
+                    <div class="main__work-card card">
+                        <img src="img/vec9.svg" alt="">
+                        <span class="number">3</span>
+                        <h3>Безопасные сделки</h3>
+                        <p>Наслаждайтесь безопасными платежами с защитой покупателя.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -133,19 +134,22 @@
             <div class="footer__top-inner container">
                 <div class="footer__about">
                     <h3>МаркетПлейс</h3>
-                    <p>Новый маркетплейс для покупки и продажи товаров и услуг. Скоро запуск!</p>
+                    <p>Новый маркетплейс для покупки и<br> продажи товаров и услуг. Скоро запуск!</p>
                 </div>
                 <div class="footer__menu">
                     <h4>Информация</h4>
-                    <ul>
-                        <li><a href="#">О проекте</a></li>
-                        <li><a href="#">Возможности</a></li>
-                        <li><a href="#">Как это работает</a></li>
+                    <ul class="footer__menu-list">
+                        <li class="footer__menu-item"><a href="#">О проекте</a></li>
+                        <li class="footer__menu-item"><a href="#">Возможности</a></li>
+                        <li class="footer__menu-item"><a href="#">Как это работает</a></li>
                     </ul>
                 </div>
             </div>
         </div>
         <div class="footer__bottom">
+            <div class="footer__bottom-line-inner container">
+                <div class="footer__bottom-line bottom-line"></div>
+            </div>
             <div class="footer__botton-inner container">
                 <div class="footer__copyright">
                     <span>&copy; 2025 MarketPlace. Все права защищены.</span>
