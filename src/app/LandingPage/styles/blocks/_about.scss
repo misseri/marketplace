@@ -1,8 +1,80 @@
 @use '../helpers' as *;
 
 .main {
+    h2, h3 {
+        color: var(--color-dark);
+    }
+
     &__about {
         padding-block: rem(36);
         text-align: center;
+        
+        .container {
+            width: rem(869);
+        }
+
+        &-info {
+            padding-top: rem(71);
+            display: flex;
+            justify-content: space-around;
+            gap: rem(20);
+
+            .card {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        }
+
+        &::before, &::after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: rem(364);
+            height: rem(248);
+            background-color: var(--color-accent);
+            opacity: 0.5;
+            border-radius: rem(50);
+        }
+
+        &::before {
+            top: rem(206);
+            right: rem(-60);
+        }
+
+        &::after {
+            top: rem(206);
+            left: rem(-60);
+        }
+    }
+
+    &__possibilities {
+        padding-block: rem(36);
+        text-align: center;
+
+        &-cards {
+            margin-top: rem(38);
+            display: flex;
+            justify-content: space-around;
+            gap: rem(20);
+
+            .card {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: rem(41) rem(20);
+                border: 1px solid #aaa;
+                border-radius: rem(15);
+                width: rem(250);
+                height: rem(250);
+
+                &img {
+                    max-width: 100%;
+                    height: auto;
+                }
+            }
+        }
     }
 }
