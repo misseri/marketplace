@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Пользуемся исключительно Git Bash и Git, чтобы избежать путаниц.
 
-## Getting Started
+Клонирование репозитория
 
-First, run the development server:
+Перед тем как клонировать советуется точно знать куда клонировать
+Нельзя клонировать репозиротий в уже созданный репозиторий,
+Чтобы избежать вложенных репозиториев
+Для этого нужно проверить статус через:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+    	git status
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Вывод должен быть:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    		fatal: not a git repository (or any of the parent directories): .git
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Перед клонированием нужно создать репозиторий на GitHub.
+Скопируйте ссылку по SSH-ключу или https(если нет до сих пор SSH ключа) и воспользуйтесь командой git clone:
 
-## Learn More
+    	git clone git@github.com:misseri/second-project.git
 
-To learn more about Next.js, take a look at the following resources:
+Чтобы забрать сделанные вашим коллегой изменения,
+есть команда git pull — стянуть, или «запулить» изменения.
+Если вы работаете над репозиторием не один,
+то перед тем как опубликовать изменения, всегда вводите git pull.
+Пока вы писали код, кто-то мог опубликовать свежие изменения.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    	git pull
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Сразу переключаемся на ветку dev:
 
-## Deploy on Vercel
+      git checkout dev
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+От этой ветви создаем отдельные ветви с конкретными изменениями(что именно вы сделали):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+      git checkout -b <ваша_ветвь>
+
+И только потом в эту новую ветвь пушим ваши изменения.
+
+      git push -u origin <ваша_ветвь>
+
+Создаете pull request и после код ревью делаем merge с dev веткой, если все всех устраивает
+
+Используем структуру проекта по БЭМ
+Проект был создан с помощью [T3 Create App](https://create.t3.gg/)
