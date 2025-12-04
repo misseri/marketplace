@@ -1,6 +1,8 @@
 @use 'helpers' as *;
 
-
+html {
+    overflow-x: hidden;
+}
 
 body {
     @include fluid-text(18, 14);

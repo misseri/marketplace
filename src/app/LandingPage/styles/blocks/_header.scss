@@ -8,14 +8,21 @@
     }
 
     &__promo-link {
-        color: var(--color-light-1);
+        color: var(--color-light);
         &:hover {
             color: var(--color-light);
         }
     }
 
     &__body {
-        padding-block: rem(24);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: rem(66);
+        background-color: var(--color-light);
+        box-shadow: 0 rem(2) rem(20) rgba(0, 0, 0, 0.15);
+        z-index: 1000;
 
         @include mobile {
             padding-block: rem(20);
@@ -72,6 +79,15 @@
             &.is-active {
                 color: var(--color-dark);
             }
+        }
+    }
+
+    &__bottom {
+        &-line {
+            width: 100%;
+            height: rem(1);
+            margin: 0 auto;
+            background-color: var(--color-gray);
         }
     }
 }
