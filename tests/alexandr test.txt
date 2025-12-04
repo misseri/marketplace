@@ -1,0 +1,61 @@
+// Playwright (TypeScript)
+import { test, expect, Page } from '@playwright/test';
+
+test.describe('Popular Products for New User', () => {
+ let page: Page;
+
+ test.beforeEach(async ({ browser }) => {
+   // Создаем новый контекст для симуляции нового пользователя
+   const context = await browser.newContext();
+   page = await context.newPage();
+   await page.goto('/');
+ });
+
+ test('should display popular products with correct data', async () => {
+   // Ждем появления секции
+   const popularSection = page.locator('.popular-products-section');
+   await expect(popularSection).toBeVisible();
+
+   // Проверяем заголовок
+   await expect(popularSection.locator('h2')).toContainText(['Популярные', 'Popular']);
+
+   // Получаем все карточки товаров
+   const productCards = popularSection.locator('.product-card');
+   await expect(productCards).toHaveCountGreaterThan(0);
+
+   // Проверяем несколько товаров
+   const count = await productCards.count();
+   for (let i = 0; i < Math.min(3, count); i++) {
+     const card = productCards.nth(i);
+     
+     // Проверяем название
+     const name = card.locator('.product-name');
+     await expect(name).not.toBeEmpty();
+     
+     // Проверяем цену
+     const price = card.locator('.product-price');
+     await expect(price).not.toBeEmpty();
+     
+     // Проверяем изображение
+     const image = card.locator('img');
+     await expect(image).toBeVisible();
+   }
+ });
+
+ test('should have working product links', async () => {
+   const firstProduct = page.locator('.product-card').first();
+   const productLink = firstProduct.locator('a');
+   
+   // Проверяем, что ссылка ведет на страницу товара
+   const href = await productLink.getAttribute('href');
+   expect(href).toMatch(/\/product\//);
+   
+   // Кликаем и проверяем переход
+   await productLink.click();
+   await expect(page).toHaveURL(/\/product\//);
+ });
+
+ test.afterEach(async () => {
+   await page.close();
+ });
+});

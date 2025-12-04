@@ -93,18 +93,22 @@ export default function Header() {
                     <DropdownMenuItem>
                       <CircleUser />
                       Профиль
+                      {/* i18n интернационализация */}
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <ShoppingBasket />
                       Корзина
+                      {/* i18n интернационализация */}
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Heart />
-                      Желаемое
+                      Избранное
+                      {/* i18n интернационализация */}
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Settings />
                       Настройки
+                      {/* i18n интернационализация */}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
@@ -112,6 +116,7 @@ export default function Header() {
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut />
                       Выйти
+                      {/* i18n интернационализация */}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
@@ -129,6 +134,7 @@ export default function Header() {
                       <DialogTitle className="text-2xl text-[#F62877]">
                         Вход
                       </DialogTitle>
+                      {/* mock заглушку сделать */}
                     </DialogHeader>
                     <button
                       onClick={handleLogging}

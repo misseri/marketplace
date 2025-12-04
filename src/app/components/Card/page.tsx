@@ -34,7 +34,7 @@ export default function Card({
     setIsShowingCheck(true);
     setTimeout(() => {
       setIsShowingCheck(false);
-    }, 2000);
+    }, 1000);
   };
 
   return (
@@ -48,7 +48,7 @@ export default function Card({
       </Link>
       <div className="flex flex-col items-start justify-start px-5 max-sm:px-2">
         <span className="text-xl font-bold text-[#F62877] max-sm:text-[1rem]">
-          {price} ₽
+          {price.toLocaleString()} ₽
         </span>
         <h3 className="overflow-hidden text-sm font-bold text-ellipsis whitespace-nowrap text-neutral-700 max-sm:text-[0.8rem]">
           {title}
