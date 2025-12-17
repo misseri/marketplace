@@ -29,19 +29,74 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import GoogleSVG from "./img/GoogleSVG";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { authStorage, type User } from "~/lib/auth-storage";
 
 export default function Header() {
   const [isLogged, setIsLogged] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const handleLogging = () => {
-    setIsLogged(true);
-    setIsDialogOpen(false);
+  // Загружаем данные пользователя из localStorage при монтировании
+  useEffect(() => {
+    const storedUser = authStorage.getUser();
+    if (storedUser) {
+      setUser(storedUser);
+      setIsLogged(true);
+    }
+    setIsLoading(false);
+  }, []);
+
+  const handleLogging = async () => {
+    try {
+      setIsLoading(true);
+      // Вызываем API для авторизации
+      const response = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка авторизации");
+      }
+
+      const data = await response.json();
+      if (data.success && data.user) {
+        // Сохраняем пользователя в localStorage
+        authStorage.setUser(data.user);
+        setUser(data.user);
+        setIsLogged(true);
+        setIsDialogOpen(false);
+      }
+    } catch (error) {
+      console.error("Ошибка при авторизации:", error);
+      alert("Не удалось войти. Попробуйте еще раз.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleLogout = () => {
-    setIsLogged(false);
+  const handleLogout = async () => {
+    try {
+      // Вызываем API для выхода
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      // Удаляем пользователя из localStorage
+      authStorage.removeUser();
+      setUser(null);
+      setIsLogged(false);
+    } catch (error) {
+      console.error("Ошибка при выходе:", error);
+      // Все равно очищаем локальные данные
+      authStorage.removeUser();
+      setUser(null);
+      setIsLogged(false);
+    }
   };
 
   return (
@@ -138,10 +193,11 @@ export default function Header() {
                     </DialogHeader>
                     <button
                       onClick={handleLogging}
-                      className="flex w-full max-w-[280px] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-neutral-200 px-4 py-2 text-black hover:bg-neutral-300"
+                      disabled={isLoading}
+                      className="flex w-full max-w-[280px] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-neutral-200 px-4 py-2 text-black hover:bg-neutral-300 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <GoogleSVG />
-                      Войти с помощью Google
+                      {isLoading ? "Вход..." : "Войти с помощью Google"}
                     </button>
                   </div>
                 </DialogContent>

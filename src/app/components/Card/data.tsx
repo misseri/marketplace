@@ -66,4 +66,40 @@ export const products: Product[] = [
     image: "hehe",
     title: "Трактор Синтай ХТ-244",
   },
+  {
+    id: "11",
+    price: 12999,
+    image: "hehe",
+    title: "Смартфон",
+  },
+  {
+    id: "12",
+    price: 4500,
+    image: "hehe",
+    title: "Наушники",
+  },
+  {
+    id: "13",
+    price: 1899,
+    image: "hehe",
+    title: "Рюкзак",
+  },
+  {
+    id: "14",
+    price: 3200,
+    image: "hehe",
+    title: "Часы",
+  },
+  {
+    id: "15",
+    price: 5500,
+    image: "hehe",
+    title: "Планшет",
+  },
+  {
+    id: "16",
+    price: 1200,
+    image: "hehe",
+    title: "Клавиатура",
+  },
 ];
