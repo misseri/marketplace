@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>МаркетПлейс</title>
+    <link rel="stylesheet" href="./styles/main.css">
+    <script src="./scripts/main.js" type="module" defer></script>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header__promo">
+            <div class="header__promo-inner container">
+                <a href="/" class="header__promo-link">
+                    <span class="icon icon--white-arrow">
+                        Скоро запуск
+                    </span>
+                </a>
+            </div>
+        </div>
+        <div class="header__body">
+            <div class="header__body-inner container">
+                <a href="/" class="header__logo logo" aria-label="Home" title="Home">
+                    МаркетПлейс
+                </a>
+                <div class="header__overlay">
+                    <nav class="header__menu">
+                        <ul class="header__menu-list">
+                            <li class="header__menu_item">
+                                <a href="#about" class="header__menu-link navlink is-active">О проекте</a>
+                            </li>
+                            <li class="header__menu_item">
+                                <a href="#possibilities" class="header__menu-link navlink">Возможности</a>
+                            </li>
+                            <li class="header__menu_item">
+                                <a href="#howitwork" class="header__menu-link navlink">Как это работает</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <a href="/" class="header__subscribe button button--accent">
+                        Подписаться на новости
+                    </a>
+                </div>
+                <button class="header__burger-button burger-button visible-mobile" aria-label="Open menu" title="Open menu">
+                    <span class="burger-button__line"></span>
+                    <span class="burger-button__line"></span>
+                    <span class="burger-button__line"></span>
+                </button>
+            </div>
+        </div>
+        <div class="header__bottom">
+            <div class="header__bottom-line-inner container">
+                <div class="header__bottom-line bottom-line"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="main__about section" id="about">
+            <div class="main__about-inner container">
+                <h1>Новый маркетплейс<br> для покупок и продаж</h1>
+                <p>Скоро запуск! Новая платформа для покупки и продажи любых товаров и услуг.<br>
+Просто, безопасно и удобно.</p>
+            </div>
+            <div class="main__about-info container">
+                <div class="main__about-card card">
+                    <img src="img/vec1.svg" alt="">
+                    <p>Безопасные сделки</p>
+                </div>
+                <div class="main__about-card card">
+                    <img src="img/vec2.svg" alt="">
+                    <p>Защита покупателя</p>
+                </div>
+                <div class="main__about-card card">
+                    <img src="img/vec3.svg" alt="">
+                    <p>Проверенные продавцы</p>
+                </div>
+            </div>
+        </section>
+        <section class="main__possibilities section" id="possibilities">
+            <div class="main__possibilities-inner container">
+                <h2>Широкий выбор категорий</h2>
+                <p>Наша платформа будет поддерживать множество категорий товаров и услуг.</p>
+            </div>
+            <div class="main__possibilities-cards container">
+                <div class="main__possibilities-card card">
+                    <img src="img/vec4.svg" alt="">
+                    <h3>Товары</h3>
+                    <p>Большой выбор физических товаров от проверенных продавцов
+</p>
+                </div>
+                <div class="main__possibilities-card card">
+                    <img src="img/vec5.svg" alt="">
+                    <h3>Услуги</h3>
+                    <p>Профессиональные услуги от специалистов в разных областях</p>
+                </div>
+                <div class="main__possibilities-card card">
+                    <img src="img/vec6.svg" alt="">
+                    <h3>Эксклюзив</h3>
+                    <p>Уникальные предложения и товары ручной работы</p>
+                </div>
+            </div>
+        </section>
+        <section class="main__work section" id="howitwork">
+            <div class="main__work-inner container">
+                <h2>Как это будет работать</h2>
+                <p>Начать работу будет просто. Следуйте этим простым шагам для покупки или продажи на нашей платформе</p>
+                <div class="main__work-inner-cards">
+                    <div class="main__work-card card">
+                        <img src="img/vec7.svg" alt="">
+                        <span class="number">1</span>
+                        <h3>Находите и выбирайте</h3>
+                        <p>Исследуйте тысячи уникальных товаров и услуг от проверенных продавцов со всей России.</p>
+                    </div>
+                    <div class="main__work-card card">
+                        <img src="img/vec8.svg" alt="">
+                        <span class="number">2</span>
+                        <h3>Размещайте объявления</h3>
+                        <p>Загружайте фото, устанавливайте цену и находите потенциальных покупателей.</p>
+                    </div>
+                    <div class="main__work-card card">
+                        <img src="img/vec9.svg" alt="">
+                        <span class="number">3</span>
+                        <h3>Безопасные сделки</h3>
+                        <p>Наслаждайтесь безопасными платежами с защитой покупателя.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="footer__top">
+            <div class="footer__top-inner container">
+                <div class="footer__about">
+                    <h3>МаркетПлейс</h3>
+                    <p>Новый маркетплейс для покупки и<br> продажи товаров и услуг. Скоро запуск!</p>
+                </div>
+                <div class="footer__menu">
+                    <h4>Информация</h4>
+                    <ul class="footer__menu-list">
+                        <li class="footer__menu-item"><a href="#">О проекте</a></li>
+                        <li class="footer__menu-item"><a href="#">Возможности</a></li>
+                        <li class="footer__menu-item"><a href="#">Как это работает</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <div class="footer__bottom-line-inner container">
+                <div class="footer__bottom-line bottom-line"></div>
+            </div>
+            <div class="footer__botton-inner container">
+                <div class="footer__copyright">
+                    <span>&copy; 2025 MarketPlace. Все права защищены.</span>
+                </div>
+                <div class="footer__policy">
+                    <a href="#">Политика конфиденциальности</a>
+                    <a href="#">Использование Cookie</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

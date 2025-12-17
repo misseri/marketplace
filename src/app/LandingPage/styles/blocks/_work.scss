@@ -1,0 +1,44 @@
+@use '../helpers' as *;
+
+.main {
+    &__work {
+        padding-block: rem(36);
+        text-align: center;
+
+        &-inner {
+
+            &-cards {
+                margin-top: rem(38);
+                display: flex;
+                justify-content: space-around;
+                gap: rem(20);
+
+                .card {
+                    display: flex;
+                    position: relative;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                    padding: rem(41) rem(20);
+                    border: 1px solid #aaa;
+                    border-radius: rem(15);
+                    width: rem(250);
+                    height: rem(250);
+
+                    &img {
+                        max-width: 100%;
+                        height: auto;
+                    }
+
+                    .number {
+                        position: absolute;
+                        font-size: rem(64);
+                        color: var(--color-light-1);
+                        right: rem(14);
+                        top: rem(2);
+                    }
+                }
+            }            
+        }
+    }
+}

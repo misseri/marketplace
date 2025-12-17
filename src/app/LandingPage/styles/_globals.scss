@@ -1,0 +1,65 @@
+@use 'helpers' as *;
+
+html {
+    overflow-x: hidden;
+}
+
+body {
+    @include fluid-text(18, 14);
+
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-family-base);
+    color: var(--color-gray);
+}
+
+h1, .h1,
+h2, .h2,
+h3, .h3,
+h4, .h4,
+h5, .h5,
+h6, .h6 {
+    color: var(--color-accent);
+    font-family: var(--font-family-base);
+    font-weight: 500;
+}
+
+h1, .h1 {
+    @include fluid-text(64, 28);
+}
+
+h2, .h2 {
+    @include fluid-text(32, 16);
+}
+
+h3, .h3 {
+    @include fluid-text(20, 14);
+}
+
+a,
+button,
+label,
+input,
+textarea,
+select,
+svg * {
+    transition-duration: var(--transition-duration);
+}
+
+a {
+    color: var(--color-gray);
+
+    @include hover {
+        color: var(--color-accent);
+    }
+
+    &[class] {
+        text-decoration: none;
+    }
+}
+
+:focus-visible {
+    outline: rem(2) dashed var(--color-light);
+    outline-offset: rem(4);
+    transition-duration: 0s !important;
+}
