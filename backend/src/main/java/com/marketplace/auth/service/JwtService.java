@@ -45,4 +45,15 @@ public class JwtService {
         );
     }
 
+    public boolean isRefreshToken(String token){
+
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("type")
+                .equals("refresh");
+    }
+
 }

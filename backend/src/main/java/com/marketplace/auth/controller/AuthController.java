@@ -8,6 +8,7 @@ import com.marketplace.auth.repository.UserRepository;
 import com.marketplace.auth.service.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -26,10 +27,42 @@ public class AuthController {
         this.userRepository = userRepository;
     }
 
+    @PostMapping("/refresh")
+    public void refresh(HttpServletRequest request,
+                        HttpServletResponse response) {
+
+
+        String refreshToken = getCookie(request, "refresh_token");
+
+        if (refreshToken == null) {
+            throw new RuntimeException("Refresh token missing");
+        }
+
+        if (!jwtService.isRefreshToken(refreshToken)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        Integer userId = jwtService.extractUserId(refreshToken);
+
+        String newAccessToken = jwtService.generateAccessToken(userId);
+
+        Cookie access = new Cookie("access_token", newAccessToken);
+        access.setHttpOnly(true);
+        access.setPath("/");
+        access.setMaxAge(900);
+
+        response.addCookie(access);
+    }
+
+
     @GetMapping("/whoami")
     public UserResponse whoami(HttpServletRequest request) {
 
         String token = getCookie(request, "access_token");
+
+        if (token == null) {
+            throw new RuntimeException("Access token missing");
+        }
 
         Integer userId = jwtService.extractUserId(token);
 
@@ -45,6 +78,23 @@ public class AuthController {
                 user.getLogin(),
                 roles
         );
+    }
+
+    @PostMapping("/logout")
+    public void logout(HttpServletResponse response) {
+
+        Cookie access = new Cookie("access_token", "");
+        access.setHttpOnly(true);
+        access.setPath("/");
+        access.setMaxAge(0);
+
+        Cookie refresh = new Cookie("refresh_token", "");
+        refresh.setHttpOnly(true);
+        refresh.setPath("/");
+        refresh.setMaxAge(0);
+
+        response.addCookie(access);
+        response.addCookie(refresh);
     }
 
     private String getCookie(HttpServletRequest request, String name) {
