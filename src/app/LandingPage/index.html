@@ -2,164 +2,179 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>МаркетПлейс</title>
-    <link rel="stylesheet" href="./styles/main.css">
-    <script src="./scripts/main.js" type="module" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
+    
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a href="#" class="navbar-brand logo">
+                МаркетПлейс
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-    <header class="header">
-        <div class="header__promo">
-            <div class="header__promo-inner container">
-                <a href="/" class="header__promo-link">
-                    <span class="icon icon--white-arrow">
-                        Скоро запуск
-                    </span>
-                </a>
+            <div class="collapse navbar-collapse navbar-menu" id="navbarNav">
+                <ul class="navbar-nav gap-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">О проекте</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Возможности</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Как это работает</a>
+                    </li>
+                    <div class="d-lg-none">
+                        <li class="nav-item">
+                            <a class="btn btn-accent w-100" role="button" aria-disabled="true">Подписаться на новости</a>
+                        </li>
+                    </div>
+                </ul>
             </div>
-        </div>
-        <div class="header__body">
-            <div class="header__body-inner container">
-                <a href="/" class="header__logo logo" aria-label="Home" title="Home">
-                    МаркетПлейс
-                </a>
-                <div class="header__overlay">
-                    <nav class="header__menu">
-                        <ul class="header__menu-list">
-                            <li class="header__menu_item">
-                                <a href="#about" class="header__menu-link navlink is-active">О проекте</a>
-                            </li>
-                            <li class="header__menu_item">
-                                <a href="#possibilities" class="header__menu-link navlink">Возможности</a>
-                            </li>
-                            <li class="header__menu_item">
-                                <a href="#howitwork" class="header__menu-link navlink">Как это работает</a>
-                            </li>
-                        </ul>
-                    </nav>
-                    <a href="/" class="header__subscribe button button--accent">
-                        Подписаться на новости
-                    </a>
-                </div>
-                <button class="header__burger-button burger-button visible-mobile" aria-label="Open menu" title="Open menu">
-                    <span class="burger-button__line"></span>
-                    <span class="burger-button__line"></span>
-                    <span class="burger-button__line"></span>
-                </button>
-            </div>
-        </div>
-        <div class="header__bottom">
-            <div class="header__bottom-line-inner container">
-                <div class="header__bottom-line bottom-line"></div>
-            </div>
-        </div>
-    </header>
 
-    <main class="main">
-        <section class="main__about section" id="about">
-            <div class="main__about-inner container">
-                <h1>Новый маркетплейс<br> для покупок и продаж</h1>
-                <p>Скоро запуск! Новая платформа для покупки и продажи любых товаров и услуг.<br>
-Просто, безопасно и удобно.</p>
+            <div class="d-none d-lg-block">
+                <a class="btn btn-accent" role="button" aria-disabled="true">Подписаться на новости</a>
             </div>
-            <div class="main__about-info container">
-                <div class="main__about-card card">
-                    <img src="img/vec1.svg" alt="">
-                    <p>Безопасные сделки</p>
-                </div>
-                <div class="main__about-card card">
-                    <img src="img/vec2.svg" alt="">
-                    <p>Защита покупателя</p>
-                </div>
-                <div class="main__about-card card">
-                    <img src="img/vec3.svg" alt="">
-                    <p>Проверенные продавцы</p>
-                </div>
+        </div>
+    </nav>
+    <div class="line"></div>
+
+    <section id="about" class="about">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="decoration left-side"></div>
+                <h2 class="text-center mb-5 about-logo">Новый маркетплейс<br> для покупок и продаж</h2>
+                <div class="decoration right-side"></div>
+                <p class="text-center about-text">Скоро запуск! Новая платформа для покупки и продажи любых товаров и услуг.<br> Просто, безопасно и удобно.</p>
             </div>
-        </section>
-        <section class="main__possibilities section" id="possibilities">
-            <div class="main__possibilities-inner container">
-                <h2>Широкий выбор категорий</h2>
-                <p>Наша платформа будет поддерживать множество категорий товаров и услуг.</p>
-            </div>
-            <div class="main__possibilities-cards container">
-                <div class="main__possibilities-card card">
-                    <img src="img/vec4.svg" alt="">
-                    <h3>Товары</h3>
-                    <p>Большой выбор физических товаров от проверенных продавцов
-</p>
+            <div class="row g-4 about-features">
+                <div class="col-md-4 about-feature">
+                    <div class="card-feature text-center">
+                        <img src="./img/vec1.svg" alt="">
+                        <p>Безопасные сделки</p>
+                    </div>
                 </div>
-                <div class="main__possibilities-card card">
-                    <img src="img/vec5.svg" alt="">
-                    <h3>Услуги</h3>
-                    <p>Профессиональные услуги от специалистов в разных областях</p>
+                <div class="col-md-4 about-feature">
+                    <div class="card-feature text-center">
+                        <img src="./img/vec2.svg" alt="">
+                        <p>Защита покупателя</p>
+                    </div>
                 </div>
-                <div class="main__possibilities-card card">
-                    <img src="img/vec6.svg" alt="">
-                    <h3>Эксклюзив</h3>
-                    <p>Уникальные предложения и товары ручной работы</p>
+                <div class="col-md-4 about-feature">
+                    <div class="card-feature text-center">
+                        <img src="./img/vec3.svg" alt="">
+                        <p>Проверенные продавцы</p>
+                    </div>
                 </div>
             </div>
-        </section>
-        <section class="main__work section" id="howitwork">
-            <div class="main__work-inner container">
-                <h2>Как это будет работать</h2>
-                <p>Начать работу будет просто. Следуйте этим простым шагам для покупки или продажи на нашей платформе</p>
-                <div class="main__work-inner-cards">
-                    <div class="main__work-card card">
-                        <img src="img/vec7.svg" alt="">
-                        <span class="number">1</span>
-                        <h3>Находите и выбирайте</h3>
+        </div>
+    </section>
+    <div class="line"></div>
+
+    <section id="category" class="category">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-8 text-center">
+                    <h3>Широкий выбор категорий</h3>
+                    <p>Наша платформа будет поддерживать множество категорий товаров и услуг.</p>
+                </div>
+            </div>
+            <div class="row g-4 category-cards">
+                <div class="col-auto mx-auto category-card">
+                    <div class="c-card text-center">
+                        <img src="./img/vec5.svg" alt="">
+                        <h5>Товары</h5>
+                        <p>Большой выбор физических товаров от проверенных продавцов</p>
+                    </div>
+                </div>
+                <div class="col-auto mx-auto category-card">
+                    <div class="c-card text-center">
+                        <img src="./img/vec6.svg" alt="">
+                        <h5>Услуги</h5>
+                        <p>Профессиональные услуги от специалистов в разных областях</p>
+                    </div>
+                </div>
+                <div class="col-auto mx-auto category-card">
+                    <div class="c-card text-center">
+                        <img src="./img/vec7.svg" alt="">
+                        <h5>Эксклюзив</h5>
+                        <p>Уникальные предложения и товары ручной работы</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="line"></div>
+
+    <section id="work" class="work">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-8 text-center">
+                    <h3>Как это будет работать</h3>
+                    <p>Начать работу будет просто. Следуйте этим простым шагам для покупки или продажи на нашей платформе</p>
+                </div>
+            </div>
+            <div class="row g-4 works-cards">
+                <div class="col-auto mx-auto work-card">
+                    <div class="w-card text-center">
+                        <img src="./img/vec7.svg" alt="">
+                        <h5>Находите и выбирайте</h5>
                         <p>Исследуйте тысячи уникальных товаров и услуг от проверенных продавцов со всей России.</p>
                     </div>
-                    <div class="main__work-card card">
-                        <img src="img/vec8.svg" alt="">
-                        <span class="number">2</span>
-                        <h3>Размещайте объявления</h3>
+                </div>
+                <div class="col-auto mx-auto work-card">
+                    <div class="w-card text-center">
+                        <img src="./img/vec8.svg" alt="">
+                        <h5>Размещайте объявления</h5>
                         <p>Загружайте фото, устанавливайте цену и находите потенциальных покупателей.</p>
                     </div>
-                    <div class="main__work-card card">
-                        <img src="img/vec9.svg" alt="">
-                        <span class="number">3</span>
-                        <h3>Безопасные сделки</h3>
+                </div>
+                <div class="col-auto mx-auto work-card">
+                    <div class="w-card text-center">
+                        <img src="./img/vec9.svg" alt="">
+                        <h5>Безопасные сделки</h5>
                         <p>Наслаждайтесь безопасными платежами с защитой покупателя.</p>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
-    <footer class="footer">
-        <div class="footer__top">
-            <div class="footer__top-inner container">
-                <div class="footer__about">
-                    <h3>МаркетПлейс</h3>
-                    <p>Новый маркетплейс для покупки и<br> продажи товаров и услуг. Скоро запуск!</p>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <h2>МаркетПлейс</h2>
+                    <p>Новый маркетплейс для покупки и продажи товаров и услуг. Скоро запуск!</p>
                 </div>
-                <div class="footer__menu">
-                    <h4>Информация</h4>
-                    <ul class="footer__menu-list">
-                        <li class="footer__menu-item"><a href="#">О проекте</a></li>
-                        <li class="footer__menu-item"><a href="#">Возможности</a></li>
-                        <li class="footer__menu-item"><a href="#">Как это работает</a></li>
+                <div class="col-lg-4 col-md-6">
+                    <h2>Информация</h2>
+                    <ul class="footer-menu">
+                        <li><a href="#">О проекте</a></li>
+                        <li><a href="#">Возможности</a></li>
+                        <li><a href="#">Как это работает</a></li>
                     </ul>
                 </div>
             </div>
-        </div>
-        <div class="footer__bottom">
-            <div class="footer__bottom-line-inner container">
-                <div class="footer__bottom-line bottom-line"></div>
-            </div>
-            <div class="footer__botton-inner container">
-                <div class="footer__copyright">
-                    <span>&copy; 2025 MarketPlace. Все права защищены.</span>
+            <div class="line"></div>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 МаркетПлейс. Все права защищены.</p>
                 </div>
-                <div class="footer__policy">
-                    <a href="#">Политика конфиденциальности</a>
-                    <a href="#">Использование Cookie</a>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white text-decoration-none me-3">Политика конфиденциальности</a>
+                    <a href="#" class="text-white text-decoration-none">Использование Cookie</a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
 </html>
