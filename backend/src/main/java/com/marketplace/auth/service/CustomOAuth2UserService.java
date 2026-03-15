@@ -1,12 +1,12 @@
 package com.marketplace.auth.service;
 
-
 import com.marketplace.auth.model.Role;
 import com.marketplace.auth.model.SsoUser;
 import com.marketplace.auth.model.User;
 import com.marketplace.auth.repository.RoleRepository;
 import com.marketplace.auth.repository.SsoUserRepository;
 import com.marketplace.auth.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -31,8 +31,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest request) {
-
         OAuth2User oauthUser = super.loadUser(request);
 
         String googleId = oauthUser.getAttribute("sub");
@@ -41,22 +41,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<SsoUser> sso = ssoRepo.findByAuthSysAndExternalId("google", googleId);
 
         if (sso.isEmpty()) {
-
+            // Создаем нового пользователя
             User user = new User();
             user.setLogin(email);
 
-            Role userRole = roleRepo.findById(2)
+            Role userRole = roleRepo.findAll()
+                    .stream()
+                    .filter(r -> "USER".equalsIgnoreCase(r.getНазвание()))
+                    .findFirst()
                     .orElseThrow(() -> new RuntimeException("Role USER not found"));
 
             user.setRoles(Set.of(userRole));
-
             user = userRepo.save(user);
 
             SsoUser s = new SsoUser();
             s.setAuthSys("google");
             s.setExternalId(googleId);
             s.setUser(user);
-
             ssoRepo.save(s);
         }
 

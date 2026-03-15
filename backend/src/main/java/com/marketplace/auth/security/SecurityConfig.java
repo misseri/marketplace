@@ -25,11 +25,10 @@ public class SecurityConfig {
         this.successHandler = successHandler;
     }
 
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:3000")); // твой фронт
+        config.setAllowedOriginPatterns(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -43,13 +42,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())  // включает CORS
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/auth/whoami","/oauth2/**","/login/oauth2/**").permitAll()
+                        .requestMatchers("/auth/whoami","/auth/refresh","/oauth2/**","/login/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(Customizer.withDefaults());
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oauthService)
+                        )
+                        .successHandler(successHandler)
+                );
 
         return http.build();
     }

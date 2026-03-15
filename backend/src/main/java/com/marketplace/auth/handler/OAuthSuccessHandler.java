@@ -1,6 +1,5 @@
 package com.marketplace.auth.handler;
 
-
 import com.marketplace.auth.model.SsoUser;
 import com.marketplace.auth.repository.SsoUserRepository;
 import com.marketplace.auth.service.JwtService;
@@ -37,7 +36,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         SsoUser sso = ssoRepo
                 .findByAuthSysAndExternalId("google", googleId)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("SSO user not found"));
 
         Integer userId = sso.getUser().getId();
 
@@ -48,15 +47,20 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         access.setHttpOnly(true);
         access.setPath("/");
         access.setMaxAge(900);
+        access.setSecure(false); // для локальной разработки
+        access.setDomain("localhost");
 
         Cookie refresh = new Cookie("refresh_token", refreshToken);
         refresh.setHttpOnly(true);
         refresh.setPath("/");
         refresh.setMaxAge(604800);
+        refresh.setSecure(false); // для локальной разработки
+        refresh.setDomain("localhost");
 
         response.addCookie(access);
         response.addCookie(refresh);
 
+        // редирект на фронтенд
         response.sendRedirect("http://localhost:3000");
     }
 }
