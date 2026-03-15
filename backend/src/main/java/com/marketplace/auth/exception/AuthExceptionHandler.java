@@ -1,4 +1,4 @@
-package com.marketplace.exception;
+package com.marketplace.auth.exception;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.ResponseEntity;

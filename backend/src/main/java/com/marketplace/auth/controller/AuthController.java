@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,6 +58,9 @@ public class AuthController {
 
     @GetMapping("/whoami")
     public UserResponse whoami(HttpServletRequest request) {
+
+        Cookie[] cookies = request.getCookies();
+        System.out.println("Cookies from request: " + (cookies == null ? "null" : Arrays.toString(cookies)));
 
         String token = getCookie(request, "access_token");
 
