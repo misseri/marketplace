@@ -6,13 +6,17 @@
   "scripts": {
     "build": "next build",
     "check": "next lint && tsc --noEmit",
+    "db:migrate:build": "mvn -f migration_bd/pom.xml -DskipTests package",
+    "db:migrate": "pnpm db:migrate:build && java -jar migration_bd/target/db-migrator-1.0.0.jar",
     "dev": "next dev --turbo",
+    "predev": "pnpm db:migrate",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "preview": "next build && next start",
     "start": "next start",
+    "prestart": "pnpm db:migrate",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
