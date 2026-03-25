@@ -29,12 +29,48 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import GoogleSVG from "./img/GoogleSVG";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+
+// Тип продукта под твой бэкенд
+type Product = {
+  id: string | number;
+  name: string;
+  description: string;
+  active: boolean;
+  categoryId: string | number;
+  categoryName: string;
+  sellerId: string | number;
+  sellerName: string;
+  sellerRating: number;
+  currentPrice: number;
+  stockQuantity: number;
+  averageRating: number;
+  reviewCount: number;
+  characteristics: Record<string, string | number>;
+};
+
+// Хук debounce для поиска
+const useDebounce = <T,>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+};
 
 export default function Header() {
   const [isLogged, setIsLogged] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+
+  // состояние поиска
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const debouncedQuery = useDebounce(searchQuery, 300);
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [searchLoading, setSearchLoading] = useState<boolean>(false);
 
   async function checkAuth() {
     const whoAmIUrl = "http://localhost:8080/auth/whoami";
@@ -43,13 +79,11 @@ export default function Header() {
         credentials: "include",
         mode: "cors",
       });
-      console.log("Status:", response.status);
       if (!response.ok) {
         setIsLogged(false);
         return;
       }
       const userData = await response.json();
-      console.log("LOGGED:", userData.login);
       setIsLogged(true);
     } catch (error) {
       console.error("Not logged:", error);
@@ -63,6 +97,49 @@ export default function Header() {
     checkAuth();
   }, []);
 
+  async function fetchProducts(query: string) {
+    setSearchLoading(true);
+    try {
+      const url = new URL("http://localhost:8080/products");
+      if (query) {
+        url.searchParams.set("query", query);
+      }
+      url.searchParams.set("page", "0");
+      url.searchParams.set("size", "10");
+
+      const res = await fetch(url.toString(), {
+        credentials: "include",
+        mode: "cors",
+      });
+
+      if (!res.ok) {
+        setSearchResults([]);
+        return;
+      }
+
+      const data = await res.json();
+      setSearchResults(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  }
+
+  const handleSearch = useCallback((value: string) => {
+    setSearchQuery(value);
+  }, []);
+
+  // Запрос при изменении debouncedQuery
+  useEffect(() => {
+    if (debouncedQuery.trim().length === 0) {
+      setSearchResults([]);
+      return;
+    }
+    fetchProducts(debouncedQuery);
+  }, [debouncedQuery]);
+
   function handleLogging() {
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
   }
@@ -73,7 +150,6 @@ export default function Header() {
         method: "POST",
         credentials: "include",
       });
-    } catch {
     } finally {
       setIsLogged(false);
     }
@@ -85,22 +161,64 @@ export default function Header() {
 
   return (
     <header className="mx-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-gray-400 py-3 sm:mx-8 sm:gap-4 sm:py-4 md:mx-12 md:gap-4.5 md:py-4.5 lg:mx-16 xl:mx-20">
+      {/* Логотип */}
       <div className="flex flex-shrink-0 gap-1.5 text-lg font-bold text-[#F62877] select-none sm:gap-2 sm:text-xl md:text-2xl">
         <Store className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
         <span className="whitespace-nowrap">PickMeMarket</span>
       </div>
 
+      {/* Блок поиска */}
       <div className="order-3 w-full min-w-0 rounded-2xl bg-neutral-200 px-3 py-1.5 sm:order-2 sm:w-auto sm:max-w-2xl sm:flex-1 sm:rounded-3xl sm:px-4 sm:py-2 md:px-5 lg:max-w-3xl xl:max-w-4xl">
-        <div className="flex items-center justify-between gap-3 sm:gap-4 md:gap-5">
+        <div className="flex items-center gap-3 sm:gap-4 md:gap-5">
           <Search className="h-5 w-5 flex-shrink-0 text-neutral-400 sm:h-5 sm:w-5" />
           <input
             type="text"
             placeholder="Поиск товара"
             className="w-full bg-transparent text-sm text-black outline-none sm:text-base"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
+
+        {/* Оверлей с результатами */}
+        {searchQuery && !searchLoading && searchResults.length > 0 && (
+          <div className="mt-1.5 rounded-2xl bg-white p-2 shadow-md">
+            <ul className="max-h-60 overflow-y-auto text-sm">
+              {searchResults.map((product) => (
+                <li
+                  key={product.id}
+                  className="cursor-pointer px-2 py-1.5 hover:bg-neutral-100"
+                  onClick={() => {
+                    window.location.href = `/product/${product.id}`;
+                  }}
+                >
+                  <div className="font-medium">{product.name}</div>
+                  <div className="text-sm text-neutral-500">
+                    {product.description}
+                  </div>
+                  <div className="font-semibold text-[#F62877]">
+                    {product.currentPrice} ₽
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {searchQuery && searchLoading && (
+          <div className="mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-md">
+            Загрузка...
+          </div>
+        )}
+
+        {searchQuery && !searchLoading && searchResults.length === 0 && (
+          <div className="mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-md">
+            Ничего не найдено
+          </div>
+        )}
       </div>
 
+      {/* Навигация и авторизация */}
       <nav className="order-2 flex-shrink-0 sm:order-3">
         <ul className="flex items-center justify-between gap-4 text-[#F62877] sm:gap-6 md:gap-8 lg:gap-9.5">
           <li className="h-6 w-6 sm:h-7 sm:w-7 md:h-[30px] md:w-[30px]">
