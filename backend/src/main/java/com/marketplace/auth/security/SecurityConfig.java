@@ -45,7 +45,14 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/auth/whoami","/auth/refresh","/oauth2/**","/login/oauth2/**").permitAll()
+                        .requestMatchers(
+                                "/auth/whoami",
+                                "/auth/refresh",
+                                "/oauth2/**",
+                                "/login/oauth2/**",
+                                "/products",
+                                "/products/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
