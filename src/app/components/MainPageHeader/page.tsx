@@ -11,6 +11,7 @@ import {
   Heart,
   Settings,
   LogOut,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -29,7 +30,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import GoogleSVG from "./img/GoogleSVG";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export interface HeaderSearchProduct {
   id: number;
@@ -55,6 +56,11 @@ export default function Header({
   const [isLogged, setIsLogged] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] =
+    useState<boolean>(false);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
 
   async function checkAuth() {
     const whoAmIUrl = "http://localhost:8080/auth/whoami";
@@ -96,58 +102,107 @@ export default function Header({
     }
   };
 
+  // клик мимо — скрываем dropdown
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setIsSearchDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   if (loading) {
     return <header>Проверка авторизации...</header>;
   }
 
   return (
-    <header className="mx-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-gray-400 py-3 sm:mx-8 sm:gap-4 sm:py-4 md:mx-12 md:gap-4.5 md:py-4.5 lg:mx-16 xl:mx-20">
-      <div className="flex flex-shrink-0 gap-1.5 select-none text-lg font-bold text-[#F62877] sm:gap-2 sm:text-xl md:text-2xl">
+    <header
+      ref={headerRef}
+      className="mx-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-gray-400 py-3 sm:mx-8 sm:gap-4 sm:py-4 md:mx-12 md:gap-4.5 md:py-4.5 lg:mx-16 xl:mx-20"
+    >
+      <div className="flex flex-shrink-0 gap-1.5 text-lg font-bold text-[#F62877] select-none sm:gap-2 sm:text-xl md:text-2xl">
         <Store className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
         <span className="whitespace-nowrap">PickMeMarket</span>
       </div>
 
-      <div className="order-3 w-full min-w-0 rounded-2xl bg-neutral-200 px-3 py-1.5 sm:order-2 sm:w-auto sm:max-w-2xl sm:flex-1 sm:rounded-3xl sm:px-4 sm:py-2 md:px-5 lg:max-w-3xl xl:max-w-4xl">
+      <div className="relative order-3 w-full min-w-0 rounded-2xl bg-neutral-200 px-3 py-1.5 sm:order-2 sm:w-auto sm:max-w-2xl sm:flex-1 sm:rounded-3xl sm:px-4 sm:py-2 md:px-5 lg:max-w-3xl xl:max-w-4xl">
         <div className="flex items-center gap-3 sm:gap-4 md:gap-5">
           <Search className="h-5 w-5 flex-shrink-0 text-neutral-400 sm:h-5 sm:w-5" />
+
           <input
+            ref={searchInputRef}
             type="text"
             placeholder="Поиск товара"
             className="w-full bg-transparent text-sm text-black outline-none sm:text-base"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
+            onFocus={() => {
+              setIsSearchDropdownOpen(true);
+            }}
+            onClick={() => {
+              if (!searchQuery) return;
+              setIsSearchDropdownOpen(true);
+            }}
           />
+
+          {searchQuery && (
+            <button
+              type="button"
+              className="flex-shrink-0 text-neutral-400 hover:text-neutral-600"
+              onClick={() => {
+                onSearchChange("");
+                setIsSearchDropdownOpen(false);
+              }}
+            >
+              <X className="h-5 w-5 cursor-pointer" />
+            </button>
+          )}
         </div>
 
-        {searchQuery && !searchLoading && searchResults.length > 0 && (
-          <div className="mt-1.5 rounded-2xl bg-white p-2 shadow-md absolute w-[500px]">
-            <ul className="max-h-60 overflow-y-auto text-sm">
-              {searchResults.map((product) => (
-                <li
-                  key={product.id}
-                  className="cursor-pointer px-2 py-1.5 hover:bg-neutral-100"
-                  onClick={() => onSelectProduct(product.id)}
-                >
-                  <div className="font-medium">{product.name}</div>
-                  <div className="font-semibold text-[#F62877]">
-                    {(product.currentPrice ?? 0).toLocaleString()} ₽
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {/* окошко подсказок */}
+        {isSearchDropdownOpen && searchQuery && (
+          <>
+            {!searchLoading && searchResults.length > 0 && (
+              <div className="absolute right-0.5 mt-1.5 w-full rounded-2xl bg-white p-2 shadow-md">
+                <ul className="max-h-60 overflow-y-auto text-sm">
+                  {searchResults.map((product) => (
+                    <li
+                      key={product.id}
+                      className="cursor-pointer px-2 py-1.5 hover:bg-neutral-100"
+                      onClick={() => {
+                        onSelectProduct(product.id);
+                        setIsSearchDropdownOpen(false);
+                      }}
+                    >
+                      <div className="text-lg font-semibold">
+                        {product.name}
+                      </div>
+                      <div className="text-base font-semibold text-[#F62877]">
+                        {(product.currentPrice ?? 0).toLocaleString()} ₽
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-        {searchQuery && searchLoading && (
-          <div className="mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-md absolute">
-            Загрузка...
-          </div>
-        )}
+            {searchLoading && (
+              <div className="absolute mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-md">
+                Загрузка...
+              </div>
+            )}
 
-        {searchQuery && !searchLoading && searchResults.length === 0 && (
-          <div className="mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-md absolute">
-            Ничего не найдено
-          </div>
+            {!searchLoading && searchResults.length === 0 && (
+              <div className="absolute mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-md">
+                Ничего не найдено
+              </div>
+            )}
+          </>
         )}
       </div>
 

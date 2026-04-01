@@ -41,7 +41,7 @@ export default function HomePage() {
   const [favoriteItems, setFavoriteItems] = useState<string[]>([]);
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchLoading, setSearchLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const handleBuy = (productId: string) => {
     setBoughtItems((prev) => [...prev, productId]);
@@ -58,8 +58,9 @@ export default function HomePage() {
   useEffect(() => {
     const controller = new AbortController();
 
-    const loadProducts = async () => {
+    const timeoutId = window.setTimeout(async () => {
       setSearchLoading(true);
+
       try {
         const url = new URL("http://localhost:8080/products");
         url.searchParams.set("page", "0");
@@ -94,9 +95,7 @@ export default function HomePage() {
           setSearchLoading(false);
         }
       }
-    };
-
-    const timeoutId = window.setTimeout(loadProducts, 300);
+    }, 300);
 
     return () => {
       controller.abort();
