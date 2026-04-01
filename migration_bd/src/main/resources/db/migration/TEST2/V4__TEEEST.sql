@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS public.test2 (
+    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    test2 text
+);
