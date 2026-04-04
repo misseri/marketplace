@@ -40,5 +40,8 @@
 
 Создаете pull request и после код ревью делаем merge с dev веткой, если все всех устраивает
 
+
+При работе с беком нужно скопировать файл application-local.properties  в backend\src\main\resources, сам файл будет в тг
+
 Используем структуру проекта по БЭМ
 Проект был создан с помощью [T3 Create App](https://create.t3.gg/)
