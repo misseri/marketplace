@@ -11,6 +11,7 @@ import {
   Heart,
   Settings,
   LogOut,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -29,93 +30,182 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import GoogleSVG from "./img/GoogleSVG";
-import { useState, useEffect } from "react";
-import { authStorage, type User } from "~/lib/auth-storage";
+import { useEffect, useRef, useState } from "react";
 
-export default function Header() {
+export interface HeaderSearchProduct {
+  id: number;
+  name: string;
+  currentPrice: number | null;
+}
+
+interface HeaderProps {
+  searchQuery: string;
+  searchResults: HeaderSearchProduct[];
+  searchLoading: boolean;
+  onSearchChange: (value: string) => void;
+  onSelectProduct: (productId: number) => void;
+}
+
+export default function Header({
+  searchQuery,
+  searchResults,
+  searchLoading,
+  onSearchChange,
+  onSelectProduct,
+}: HeaderProps) {
   const [isLogged, setIsLogged] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] =
+    useState<boolean>(false);
 
-  // Загружаем данные пользователя из localStorage при монтировании
-  useEffect(() => {
-    const storedUser = authStorage.getUser();
-    if (storedUser) {
-      setUser(storedUser);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  async function checkAuth() {
+    const whoAmIUrl = "http://localhost:8080/auth/whoami";
+    try {
+      const response = await fetch(whoAmIUrl, {
+        credentials: "include",
+        mode: "cors",
+      });
+      if (!response.ok) {
+        setIsLogged(false);
+        return;
+      }
+      await response.json();
       setIsLogged(true);
+    } catch (error) {
+      console.error("Not logged:", error);
+      setIsLogged(false);
+    } finally {
+      setLoading(false);
     }
-    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    checkAuth();
   }, []);
 
-  const handleLogging = async () => {
-    try {
-      setIsLoading(true);
-      // Вызываем API для авторизации
-      const response = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Ошибка авторизации");
-      }
-
-      const data = await response.json();
-      if (data.success && data.user) {
-        // Сохраняем пользователя в localStorage
-        authStorage.setUser(data.user);
-        setUser(data.user);
-        setIsLogged(true);
-        setIsDialogOpen(false);
-      }
-    } catch (error) {
-      console.error("Ошибка при авторизации:", error);
-      alert("Не удалось войти. Попробуйте еще раз.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  function handleLogging() {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  }
 
   const handleLogout = async () => {
     try {
-      // Вызываем API для выхода
-      await fetch("/api/auth/logout", {
+      await fetch("http://localhost:8080/auth/logout", {
         method: "POST",
+        credentials: "include",
       });
-
-      // Удаляем пользователя из localStorage
-      authStorage.removeUser();
-      setUser(null);
-      setIsLogged(false);
-    } catch (error) {
-      console.error("Ошибка при выходе:", error);
-      // Все равно очищаем локальные данные
-      authStorage.removeUser();
-      setUser(null);
+    } finally {
       setIsLogged(false);
     }
   };
 
+  // клик мимо — скрываем dropdown
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setIsSearchDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  if (loading) {
+    return <header>Проверка авторизации...</header>;
+  }
+
   return (
-    <header className="mx-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-gray-400 py-3 sm:mx-8 sm:gap-4 sm:py-4 md:mx-12 md:gap-4.5 md:py-4.5 lg:mx-16 xl:mx-20">
+    <header
+      ref={headerRef}
+      className="mx-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-gray-400 py-3 sm:mx-8 sm:gap-4 sm:py-4 md:mx-12 md:gap-4.5 md:py-4.5 lg:mx-16 xl:mx-20"
+    >
       <div className="flex flex-shrink-0 gap-1.5 text-lg font-bold text-[#F62877] select-none sm:gap-2 sm:text-xl md:text-2xl">
         <Store className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
         <span className="whitespace-nowrap">PickMeMarket</span>
       </div>
 
-      <div className="order-3 w-full min-w-0 rounded-2xl bg-neutral-200 px-3 py-1.5 sm:order-2 sm:w-auto sm:max-w-2xl sm:flex-1 sm:rounded-3xl sm:px-4 sm:py-2 md:px-5 lg:max-w-3xl xl:max-w-4xl">
-        <div className="flex items-center justify-between gap-3 sm:gap-4 md:gap-5">
+      <div className="relative order-3 w-full min-w-0 rounded-2xl bg-neutral-200 px-3 py-1.5 sm:order-2 sm:w-auto sm:max-w-2xl sm:flex-1 sm:rounded-3xl sm:px-4 sm:py-2 md:px-5 lg:max-w-3xl xl:max-w-4xl">
+        <div className="flex items-center gap-3 sm:gap-4 md:gap-5">
           <Search className="h-5 w-5 flex-shrink-0 text-neutral-400 sm:h-5 sm:w-5" />
+
           <input
+            ref={searchInputRef}
             type="text"
             placeholder="Поиск товара"
             className="w-full bg-transparent text-sm text-black outline-none sm:text-base"
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            onFocus={() => {
+              setIsSearchDropdownOpen(true);
+            }}
+            onClick={() => {
+              if (!searchQuery) return;
+              setIsSearchDropdownOpen(true);
+            }}
           />
+
+          {searchQuery && (
+            <button
+              type="button"
+              className="flex-shrink-0 text-neutral-400 hover:text-neutral-600"
+              onClick={() => {
+                onSearchChange("");
+                setIsSearchDropdownOpen(false);
+              }}
+            >
+              <X className="h-5 w-5 cursor-pointer" />
+            </button>
+          )}
         </div>
+
+        {/* окошко подсказок */}
+        {isSearchDropdownOpen && searchQuery && (
+          <>
+            {!searchLoading && searchResults.length > 0 && (
+              <div className="absolute right-0.5 mt-1.5 w-full rounded-2xl bg-white p-2 shadow-md">
+                <ul className="max-h-60 overflow-y-auto text-sm">
+                  {searchResults.map((product) => (
+                    <li
+                      key={product.id}
+                      className="cursor-pointer px-2 py-1.5 hover:bg-neutral-100"
+                      onClick={() => {
+                        onSelectProduct(product.id);
+                        setIsSearchDropdownOpen(false);
+                      }}
+                    >
+                      <div className="text-lg font-semibold">
+                        {product.name}
+                      </div>
+                      <div className="text-base font-semibold text-[#F62877]">
+                        {(product.currentPrice ?? 0).toLocaleString()} ₽
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {searchLoading && (
+              <div className="absolute mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-md">
+                Загрузка...
+              </div>
+            )}
+
+            {!searchLoading && searchResults.length === 0 && (
+              <div className="absolute mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-md">
+                Ничего не найдено
+              </div>
+            )}
+          </>
+        )}
       </div>
+
       <nav className="order-2 flex-shrink-0 sm:order-3">
         <ul className="flex items-center justify-between gap-4 text-[#F62877] sm:gap-6 md:gap-8 lg:gap-9.5">
           <li className="h-6 w-6 sm:h-7 sm:w-7 md:h-[30px] md:w-[30px]">
@@ -146,32 +236,22 @@ export default function Header() {
                 >
                   <DropdownMenuGroup>
                     <DropdownMenuItem>
-                      <CircleUser />
-                      Профиль
-                      {/* i18n интернационализация */}
+                      <CircleUser /> Профиль
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <ShoppingBasket />
-                      Корзина
-                      {/* i18n интернационализация */}
+                      <ShoppingBasket /> Корзина
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Heart />
-                      Избранное
-                      {/* i18n интернационализация */}
+                      <Heart /> Избранное
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Settings />
-                      Настройки
-                      {/* i18n интернационализация */}
+                      <Settings /> Настройки
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem onClick={handleLogout}>
-                      <LogOut />
-                      Выйти
-                      {/* i18n интернационализация */}
+                      <LogOut /> Выйти
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
@@ -189,15 +269,13 @@ export default function Header() {
                       <DialogTitle className="text-2xl text-[#F62877]">
                         Вход
                       </DialogTitle>
-                      {/* mock заглушку сделать */}
                     </DialogHeader>
                     <button
                       onClick={handleLogging}
-                      disabled={isLoading}
-                      className="flex w-full max-w-[280px] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-neutral-200 px-4 py-2 text-black hover:bg-neutral-300 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex w-full max-w-[280px] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-neutral-200 px-4 py-2 text-black hover:bg-neutral-300"
                     >
                       <GoogleSVG />
-                      {isLoading ? "Вход..." : "Войти с помощью Google"}
+                      Войти с помощью Google
                     </button>
                   </div>
                 </DialogContent>

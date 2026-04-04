@@ -38,7 +38,7 @@ export default function Card({
   };
 
   return (
-    <div className="flex max-h-min max-w-50 flex-col justify-center gap-1 overflow-hidden rounded-2xl bg-white pb-2 shadow-md max-sm:max-h-min max-sm:min-w-40">
+    <div className="flex max-h-min max-w-60 flex-col justify-center gap-1 overflow-hidden rounded-2xl bg-white pb-2 shadow-md max-sm:max-h-min max-sm:min-w-40">
       <Link href="/CardPage">
         <img
           src={image || "no-image"}
@@ -50,7 +50,7 @@ export default function Card({
         <span className="text-xl font-bold text-[#F62877] max-sm:text-[1rem]">
           {price.toLocaleString()} ₽
         </span>
-        <h3 className="overflow-hidden text-sm font-bold text-ellipsis whitespace-nowrap text-neutral-700 max-sm:text-[0.8rem]">
+        <h3 className="line-clamp-1 overflow-hidden text-sm font-bold text-ellipsis  text-neutral-700 max-sm:text-[0.8rem]">
           {title}
         </h3>
       </div>
