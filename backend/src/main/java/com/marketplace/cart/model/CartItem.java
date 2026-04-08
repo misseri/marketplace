@@ -28,5 +28,5 @@ public class CartItem {
     private Product product;
 
     @Column(name = "количетсво")
-    private Integer quanity;
+    private Integer quantity;
 }
