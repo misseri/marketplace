@@ -27,6 +27,6 @@ public class CartItem {
     @JoinColumn(name = "товар_id")
     private Product product;
 
-    @Column(name = "количетсво")
+    @Column(name = "количество")
     private Integer quantity;
 }

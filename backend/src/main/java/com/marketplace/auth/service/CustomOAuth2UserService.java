@@ -41,24 +41,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<SsoUser> sso = ssoRepo.findByAuthSysAndExternalId("google", googleId);
 
         if (sso.isEmpty()) {
-            // Создаем нового пользователя
             User user = new User();
             user.setLogin(email);
 
             Role userRole = roleRepo.findAll()
                     .stream()
-                    .filter(r -> "USER".equalsIgnoreCase(r.getНазвание()))
+                    .filter(role -> "USER".equalsIgnoreCase(role.getName()))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Role USER not found"));
 
             user.setRoles(Set.of(userRole));
             user = userRepo.save(user);
 
-            SsoUser s = new SsoUser();
-            s.setAuthSys("google");
-            s.setExternalId(googleId);
-            s.setUser(user);
-            ssoRepo.save(s);
+            SsoUser newSsoUser = new SsoUser();
+            newSsoUser.setAuthSys("google");
+            newSsoUser.setExternalId(googleId);
+            newSsoUser.setUser(user);
+            ssoRepo.save(newSsoUser);
         }
 
         return oauthUser;

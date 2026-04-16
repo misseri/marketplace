@@ -62,17 +62,41 @@ export default function Header({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
-  async function checkAuth() {
+  async function requestWhoAmI() {
     const whoAmIUrl = "http://localhost:8080/auth/whoami";
+    return fetch(whoAmIUrl, {
+      credentials: "include",
+      mode: "cors",
+      cache: "no-store",
+    });
+  }
+
+  async function refreshAccessToken() {
+    return fetch("http://localhost:8080/auth/refresh", {
+      method: "POST",
+      credentials: "include",
+      mode: "cors",
+      cache: "no-store",
+    });
+  }
+
+  async function checkAuth() {
     try {
-      const response = await fetch(whoAmIUrl, {
-        credentials: "include",
-        mode: "cors",
-      });
+      let response = await requestWhoAmI();
+
+      if (response.status === 401) {
+        const refreshResponse = await refreshAccessToken();
+
+        if (refreshResponse.ok) {
+          response = await requestWhoAmI();
+        }
+      }
+
       if (!response.ok) {
         setIsLogged(false);
         return;
       }
+
       await response.json();
       setIsLogged(true);
     } catch (error) {
