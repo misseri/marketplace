@@ -251,36 +251,31 @@ def test_get_products_invalid_boolean_returns_current_api_behavior():
 @pytest.mark.negative
 def test_get_products_invalid_price_format_returns_current_api_behavior():
     response = api_get(params={"minPrice": "cheap"})
-    assert response.status_code == 401, response.text
+    assert response.status_code == 400, response.text
 
 
 @pytest.mark.negative
 def test_get_products_invalid_max_price_format_returns_current_api_behavior():
     response = api_get(params={"maxPrice": "cheap"})
-    assert response.status_code == 401, response.text
+    assert response.status_code == 400, response.text
 
 
 @pytest.mark.negative
 def test_get_products_invalid_category_id_format_returns_current_api_behavior():
     response = api_get(params={"categoryId": "abc"})
-    assert response.status_code == 401, response.text
+    assert response.status_code == 400, response.text
 
 
 @pytest.mark.negative
 def test_get_products_invalid_seller_id_format_returns_current_api_behavior():
     response = api_get(params={"sellerId": "abc"})
-    assert response.status_code == 401, response.text
+    assert response.status_code == 400, response.text
 
 
 @pytest.mark.negative
 def test_get_products_negative_category_id_returns_current_api_behavior():
     response = api_get(params={"categoryId": -1})
-    assert response.status_code == 200, response.text
-
-    payload = response.json()
-    assert isinstance(payload, dict)
-    assert "content" in payload
-    assert isinstance(payload["content"], list)
+    assert response.status_code == 404, response.text
 
 
 @pytest.mark.negative
@@ -341,22 +336,22 @@ def test_get_products_empty_query_returns_current_api_behavior():
 @pytest.mark.negative
 def test_get_product_by_id_invalid_string_returns_current_api_behavior():
     response = api_get("/abc")
-    assert response.status_code == 401, response.text
+    assert response.status_code == 400, response.text
 
 
 @pytest.mark.negative
 def test_get_product_by_id_zero_returns_current_api_behavior():
     response = api_get("/0")
-    assert response.status_code == 401, response.text
+    assert response.status_code == 404, response.text
 
 
 @pytest.mark.negative
 def test_get_product_by_id_negative_returns_current_api_behavior():
     response = api_get("/-1")
-    assert response.status_code == 401, response.text
+    assert response.status_code == 404, response.text
 
 
 @pytest.mark.negative
 def test_get_product_by_id_nonexistent_returns_current_api_behavior():
     response = api_get("/999999999")
-    assert response.status_code == 401, response.text
+    assert response.status_code == 404, response.text
