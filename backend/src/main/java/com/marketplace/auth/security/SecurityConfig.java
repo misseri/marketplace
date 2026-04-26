@@ -2,6 +2,7 @@ package com.marketplace.auth.security;
 
 import com.marketplace.auth.handler.OAuthSuccessHandler;
 import com.marketplace.auth.service.CustomOAuth2UserService;
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -45,11 +46,14 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(
+                                "/error",
                                 "/auth/whoami",
                                 "/auth/refresh",
                                 "/oauth2/**",
                                 "/login/oauth2/**",
+                                "/categories/**",
                                 "/products",
                                 "/products/**"
                         ).permitAll()

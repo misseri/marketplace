@@ -1,5 +1,6 @@
 package com.marketplace.product.model;
 
+import com.marketplace.category.model.Category;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

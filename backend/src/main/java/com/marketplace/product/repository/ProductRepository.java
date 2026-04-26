@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
@@ -23,7 +24,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                       and (:query = ''
                            or lower(p.name) like lower(concat('%', :query, '%'))
                            or lower(p.description) like lower(concat('%', :query, '%')))
-                      and (:categoryId is null or p.category.id = :categoryId)
+                      and (:applyCategoryFilter = false or p.category.id in :categoryIds)
                       and (:sellerId is null or p.seller.id = :sellerId)
                       and (
                             :inStock is null
@@ -61,7 +62,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                       and (:query = ''
                            or lower(p.name) like lower(concat('%', :query, '%'))
                            or lower(p.description) like lower(concat('%', :query, '%')))
-                      and (:categoryId is null or p.category.id = :categoryId)
+                      and (:applyCategoryFilter = false or p.category.id in :categoryIds)
                       and (:sellerId is null or p.seller.id = :sellerId)
                       and (
                             :inStock is null
@@ -94,7 +95,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     )
     Page<Product> search(
             @Param("query") String query,
-            @Param("categoryId") Integer categoryId,
+            @Param("applyCategoryFilter") boolean applyCategoryFilter,
+            @Param("categoryIds") Collection<Integer> categoryIds,
             @Param("sellerId") Integer sellerId,
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice,

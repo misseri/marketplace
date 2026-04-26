@@ -1,5 +1,6 @@
 package com.marketplace.product.service;
 
+import com.marketplace.category.service.CategoryService;
 import com.marketplace.product.dto.ProductCardResponse;
 import com.marketplace.product.dto.ProductDetailsResponse;
 import com.marketplace.product.dto.ProductSearchRequest;
@@ -21,24 +22,29 @@ import java.util.Map;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryService categoryService;
     private final ProductPriceService productPriceService;
     private final ProductReviewService productReviewService;
     private final ProductCharacteristicService productCharacteristicService;
 
     public ProductService(ProductRepository productRepository,
+                          CategoryService categoryService,
                           ProductPriceService productPriceService,
                           ProductReviewService productReviewService,
                           ProductCharacteristicService productCharacteristicService) {
         this.productRepository = productRepository;
+        this.categoryService = categoryService;
         this.productPriceService = productPriceService;
         this.productReviewService = productReviewService;
         this.productCharacteristicService = productCharacteristicService;
     }
 
     public Page<ProductCardResponse> search(ProductSearchRequest request, Pageable pageable) {
+        List<Integer> categoryIds = resolveCategoryIds(request.categoryId());
         Page<Product> page = productRepository.search(
                 normalize(request.query()),
-                request.categoryId(),
+                request.categoryId() != null,
+                categoryIds,
                 request.sellerId(),
                 request.minPrice(),
                 request.maxPrice(),
@@ -113,5 +119,13 @@ public class ProductService {
         }
 
         return query.trim();
+    }
+
+    private List<Integer> resolveCategoryIds(Integer categoryId) {
+        if (categoryId == null) {
+            return List.of(-1);
+        }
+
+        return categoryService.getCategoryBranchIds(categoryId);
     }
 }
