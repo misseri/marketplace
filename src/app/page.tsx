@@ -1,29 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header, {
-  type HeaderSearchProduct,
-} from "./components/MainPageHeader/page";
-import Card from "./components/Card/page";
-
-type ApiProduct = {
-  id: number;
-  name: string;
-  description: string;
-  categoryId: number;
-  categoryName: string;
-  sellerId: number;
-  sellerName: string;
-  sellerRating: number | null;
-  currentPrice: number | null;
-  stockQuantity: number;
-  averageRating: number;
-  reviewCount: number;
-};
-
-type ProductsResponse = {
-  content?: ApiProduct[];
-};
+import { useSearchParams } from "next/navigation";
+import CategoriesMenu from "~/features/categories/ui/CategoriesMenu";
+import type { HeaderSearchProduct } from "~/features/header/model";
+import MainPageHeader from "~/features/header/ui/MainPageHeader";
+import ProductCard from "~/features/products/ui/ProductCard";
+import { productsApi, type Product } from "~/api/products";
 
 const PRODUCT_PLACEHOLDER =
   "data:image/svg+xml;utf8," +
@@ -39,9 +22,13 @@ const PRODUCT_PLACEHOLDER =
 export default function HomePage() {
   const [boughtItems, setBoughtItems] = useState<string[]>([]);
   const [favoriteItems, setFavoriteItems] = useState<string[]>([]);
-  const [products, setProducts] = useState<ApiProduct[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get("categoryId");
 
   const handleBuy = (productId: string) => {
     setBoughtItems((prev) => [...prev, productId]);
@@ -62,28 +49,13 @@ export default function HomePage() {
       setSearchLoading(true);
 
       try {
-        const url = new URL("http://localhost:8080/products");
-        url.searchParams.set("page", "0");
-        url.searchParams.set("size", "24");
-
-        const trimmedQuery = searchQuery.trim();
-        if (trimmedQuery) {
-          url.searchParams.set("query", trimmedQuery);
-        }
-
-        const response = await fetch(url.toString(), {
-          credentials: "include",
-          mode: "cors",
+        const nextProducts = await productsApi.getProducts({
+          query: searchQuery,
+          categoryId,
+          page: 0,
+          size: 24,
           signal: controller.signal,
         });
-
-        if (!response.ok) {
-          setProducts([]);
-          return;
-        }
-
-        const data: ProductsResponse | ApiProduct[] = await response.json();
-        const nextProducts = Array.isArray(data) ? data : (data.content ?? []);
         setProducts(nextProducts);
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
@@ -101,53 +73,75 @@ export default function HomePage() {
       controller.abort();
       window.clearTimeout(timeoutId);
     };
-  }, [searchQuery]);
+  }, [searchQuery, categoryId]);
 
   const handleSelectProduct = (productId: number) => {
     const productElement = document.getElementById(`product-${productId}`);
     productElement?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  const searchResults: HeaderSearchProduct[] = products.slice(0, 10).map(
-    (product) => ({
+  const searchResults: HeaderSearchProduct[] = products
+    .slice(0, 10)
+    .map((product) => ({
       id: product.id,
       name: product.name,
       currentPrice: product.currentPrice,
-    }),
-  );
+    }));
 
   return (
     <>
-      <Header
+      <MainPageHeader
         searchQuery={searchQuery}
         searchResults={searchResults}
         searchLoading={searchLoading}
         onSearchChange={setSearchQuery}
         onSelectProduct={handleSelectProduct}
+        onOpenMenu={() => setIsMenuOpen(true)}
       />
 
-      <main className="my-5 flex flex-wrap justify-center gap-15 max-sm:justify-center max-sm:gap-7 xl:mx-10">
-        {!searchLoading && products.length === 0 && (
-          <p className="text-center text-neutral-500">Товары не найдены</p>
-        )}
+      <CategoriesMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
 
-        {products.map((product) => {
-          const productId = String(product.id);
+      <main className="my-5 flex flex-col items-center xl:mx-10">
+        <div className="flex w-full flex-wrap justify-center gap-15 max-sm:justify-center max-sm:gap-7">
+          {searchLoading && products.length === 0 && (
+            <p className="mt-10 w-full text-center text-neutral-500">
+              Загрузка товаров...
+            </p>
+          )}
 
-          return (
-            <div key={product.id} id={`product-${product.id}`}>
-              <Card
-                title={product.name}
-                price={Number(product.currentPrice ?? 0)}
-                image={PRODUCT_PLACEHOLDER}
-                isBought={boughtItems.includes(productId)}
-                isFavorite={favoriteItems.includes(productId)}
-                onBuy={() => handleBuy(productId)}
-                onFavorite={() => handleFavorite(productId)}
-              />
+          {!searchLoading && products.length === 0 && (
+            <div className="mt-10 flex w-full flex-col items-center justify-center">
+              <p className="text-center text-xl text-neutral-500">
+                Товары не найдены
+              </p>
+              <p className="mt-2 text-center text-sm text-neutral-400">
+                Попробуйте изменить поисковый запрос или выбрать другую
+                категорию
+              </p>
             </div>
-          );
-        })}
+          )}
+
+          {products.map((product) => {
+            const productIdString = String(product.id);
+
+            return (
+              <div key={product.id} id={`product-${product.id}`}>
+                <ProductCard
+                  title={product.name}
+                  price={Number(product.currentPrice ?? 0)}
+                  image={PRODUCT_PLACEHOLDER}
+                  isBought={boughtItems.includes(productIdString)}
+                  isFavorite={favoriteItems.includes(productIdString)}
+                  onBuy={() => handleBuy(productIdString)}
+                  onFavorite={() => handleFavorite(productIdString)}
+                />
+              </div>
+            );
+          })}
+        </div>
       </main>
     </>
   );

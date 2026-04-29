@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+**/node_modules
 /.pnp
 .pnp.js
 
@@ -20,6 +21,7 @@ next-env.d.ts
 
 # production
 /build
+backend/target
 
 # misc
 .DS_Store
@@ -44,6 +46,7 @@ yarn-error.log*
 
 # idea files
 .idea
+.vscode
 
 # python / pytest
 __pycache__/

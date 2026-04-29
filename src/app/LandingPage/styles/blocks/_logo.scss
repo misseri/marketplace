@@ -1,9 +1,0 @@
-@use '../helpers' as *;
-
-.logo {
-    @include fluid-text(50, 36);
-    
-    color: var(--color-accent);
-    font-family: var(--font-family-base);
-    font-weight: 500;
-}
