@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import CategoriesMenu from "~/features/categories/ui/CategoriesMenu";
 import type { HeaderSearchProduct } from "~/features/header/model";
 import MainPageHeader from "~/features/header/ui/MainPageHeader";
@@ -20,6 +21,7 @@ const PRODUCT_PLACEHOLDER =
   `);
 
 export default function HomePage() {
+  const router = useRouter();
   const [boughtItems, setBoughtItems] = useState<string[]>([]);
   const [favoriteItems, setFavoriteItems] = useState<string[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -45,28 +47,30 @@ export default function HomePage() {
   useEffect(() => {
     const controller = new AbortController();
 
-    const timeoutId = window.setTimeout(async () => {
-      setSearchLoading(true);
+    const timeoutId = window.setTimeout(() => {
+      void (async () => {
+        setSearchLoading(true);
 
-      try {
-        const nextProducts = await productsApi.getProducts({
-          query: searchQuery,
-          categoryId,
-          page: 0,
-          size: 24,
-          signal: controller.signal,
-        });
-        setProducts(nextProducts);
-      } catch (error) {
-        if ((error as Error).name !== "AbortError") {
-          console.error("Failed to load products:", error);
-          setProducts([]);
+        try {
+          const nextProducts = await productsApi.getProducts({
+            query: searchQuery,
+            categoryId,
+            page: 0,
+            size: 24,
+            signal: controller.signal,
+          });
+          setProducts(nextProducts);
+        } catch (error) {
+          if ((error as Error).name !== "AbortError") {
+            console.error("Failed to load products:", error);
+            setProducts([]);
+          }
+        } finally {
+          if (!controller.signal.aborted) {
+            setSearchLoading(false);
+          }
         }
-      } finally {
-        if (!controller.signal.aborted) {
-          setSearchLoading(false);
-        }
-      }
+      })();
     }, 300);
 
     return () => {
@@ -78,6 +82,10 @@ export default function HomePage() {
   const handleSelectProduct = (productId: number) => {
     const productElement = document.getElementById(`product-${productId}`);
     productElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const handleResetCategory = () => {
+    router.push("/");
   };
 
   const searchResults: HeaderSearchProduct[] = products
@@ -104,7 +112,20 @@ export default function HomePage() {
         onClose={() => setIsMenuOpen(false)}
       />
 
-      <main className="my-5 flex flex-col items-center xl:mx-10">
+      <main className="my-5 flex w-full flex-col items-center px-4 sm:px-6 xl:px-10">
+        {categoryId && (
+          <div className="mb-6 flex w-full max-w-[1440px]">
+            <button
+              type="button"
+              onClick={handleResetCategory}
+              className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-[#F62877] hover:text-[#F62877]"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span>Назад ко всем товарам</span>
+            </button>
+          </div>
+        )}
+
         <div className="flex w-full flex-wrap justify-center gap-15 max-sm:justify-center max-sm:gap-7">
           {searchLoading && products.length === 0 && (
             <p className="mt-10 w-full text-center text-neutral-500">
