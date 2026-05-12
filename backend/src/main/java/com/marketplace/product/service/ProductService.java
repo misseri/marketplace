@@ -21,36 +21,63 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class ProductService {
 
+    private static final int SEARCH_ID_FETCH_LIMIT = 1000;
+
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
+    private final ProductSearchQueryService productSearchQueryService;
     private final ProductPriceService productPriceService;
     private final ProductReviewService productReviewService;
     private final ProductCharacteristicService productCharacteristicService;
 
     public ProductService(ProductRepository productRepository,
                           CategoryService categoryService,
+                          ProductSearchQueryService productSearchQueryService,
                           ProductPriceService productPriceService,
                           ProductReviewService productReviewService,
                           ProductCharacteristicService productCharacteristicService) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
+        this.productSearchQueryService = productSearchQueryService;
         this.productPriceService = productPriceService;
         this.productReviewService = productReviewService;
         this.productCharacteristicService = productCharacteristicService;
     }
 
     public Page<ProductCardResponse> search(ProductSearchRequest request, Pageable pageable) {
+        String query = normalize(request.query());
         List<Integer> categoryIds = resolveCategoryIds(request.categoryId());
-        Page<Product> page = productRepository.search(
-                normalize(request.query()),
-                request.categoryId() != null,
-                categoryIds,
-                request.sellerId(),
-                request.minPrice(),
-                request.maxPrice(),
-                request.inStock(),
-                pageable
-        );
+        Page<Product> page;
+
+        if (query.isEmpty()) {
+            page = productRepository.search(
+                    query,
+                    request.categoryId() != null,
+                    categoryIds,
+                    request.sellerId(),
+                    request.minPrice(),
+                    request.maxPrice(),
+                    request.inStock(),
+                    pageable
+            );
+        } else {
+            List<Integer> productIds = productSearchQueryService.searchProductIds(query, SEARCH_ID_FETCH_LIMIT);
+            if (productIds.isEmpty()) {
+                return Page.empty(pageable);
+            }
+
+            page = productRepository.searchByProductIds(
+                    true,
+                    productIds,
+                    request.categoryId() != null,
+                    categoryIds,
+                    request.sellerId(),
+                    request.minPrice(),
+                    request.maxPrice(),
+                    request.inStock(),
+                    pageable
+            );
+        }
 
         List<Integer> productIds = page.getContent().stream()
                 .map(Product::getId)
@@ -64,7 +91,7 @@ public class ProductService {
 
     public ProductDetailsResponse getById(Integer id) {
         Product product = productRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Товар не найден"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "РўРѕРІР°СЂ РЅРµ РЅР°Р№РґРµРЅ"));
 
         ProductReviewSummary reviewStats = productReviewService.getReviewStatsByProductId(id);
 

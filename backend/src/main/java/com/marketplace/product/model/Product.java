@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "товары")
 @Getter
@@ -34,4 +37,7 @@ public class Product {
 
     @OneToOne(mappedBy = "product", fetch = FetchType.LAZY)
     private ProductStock stock;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private Set<ProductAlias> aliases = new LinkedHashSet<>();
 }

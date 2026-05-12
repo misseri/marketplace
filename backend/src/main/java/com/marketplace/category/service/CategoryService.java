@@ -3,6 +3,8 @@ package com.marketplace.category.service;
 import com.marketplace.category.dto.CategoryResponse;
 import com.marketplace.category.model.Category;
 import com.marketplace.category.repository.CategoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,13 +29,15 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public List<CategoryResponse> getRootCategories() {
-        return mapResponses(categoryRepository.findAllByParentIsNullOrderByNameAsc());
-    }
+    public Page<CategoryResponse> getCategories(Integer parentId, Pageable pageable) {
+        if (parentId == 0) {
+            return categoryRepository.findAllByParentIsNullOrderByNameAsc(pageable)
+                    .map(this::toResponse);
+        }
 
-    public List<CategoryResponse> getChildren(Integer parentId) {
         requireCategory(parentId);
-        return mapResponses(categoryRepository.findAllByParentIdOrderByNameAsc(parentId));
+        return categoryRepository.findAllByParentIdOrderByNameAsc(parentId, pageable)
+                .map(this::toResponse);
     }
 
     public List<Integer> getCategoryBranchIds(Integer categoryId) {
@@ -63,15 +67,13 @@ public class CategoryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Категория не найдена"));
     }
 
-    private List<CategoryResponse> mapResponses(List<Category> categories) {
-        return categories.stream()
-                .map(category -> new CategoryResponse(
-                        category.getId(),
-                        category.getName(),
-                        category.getParent() == null ? null : category.getParent().getId(),
-                        categoryRepository.existsByParentId(category.getId())
-                ))
-                .toList();
+    private CategoryResponse toResponse(Category category) {
+        return new CategoryResponse(
+                category.getId(),
+                category.getName(),
+                category.getParent() == null ? null : category.getParent().getId(),
+                categoryRepository.existsByParentId(category.getId())
+        );
     }
 
     private Map<Integer, List<Integer>> buildChildrenIndex(Collection<Category> categories) {

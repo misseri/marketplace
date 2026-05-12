@@ -1,4 +1,4 @@
-package com.marketplace.category.model;
+package com.marketplace.product.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,20 +13,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "категории")
+@Table(name = "product_aliases")
 @Getter
 @Setter
-public class Category {
+public class ProductAlias {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "название", nullable = false)
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "родитель_id")
-    private Category parent;
-
+    @Column(name = "alias_value", nullable = false)
+    private String alias;
 }

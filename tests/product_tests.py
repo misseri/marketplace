@@ -35,6 +35,38 @@ def get_products(params=None):
     return get_page(params)["content"]
 
 
+def get_category_children(category_id):
+    response = requests.get(
+        f"{BASE_URL}/categories/{category_id}",
+        params={"page": 0, "size": 100},
+        timeout=TIMEOUT,
+    )
+    assert response.status_code == 200, response.text
+
+    payload = response.json()
+    assert isinstance(payload, dict)
+    assert "content" in payload
+    assert isinstance(payload["content"], list)
+    return payload["content"]
+
+
+def get_category_branch_ids(category_id):
+    branch_ids = {category_id}
+    queue = [category_id]
+
+    while queue:
+        current_id = queue.pop(0)
+        children = get_category_children(current_id)
+
+        for child in children:
+            child_id = child["id"]
+            if child_id not in branch_ids:
+                branch_ids.add(child_id)
+                queue.append(child_id)
+
+    return branch_ids
+
+
 def get_any_product():
     products = get_products({"size": 50})
     if not products:
@@ -104,10 +136,12 @@ def test_get_product_by_id_returns_full_details_schema():
 @pytest.mark.positive
 def test_get_products_filter_by_category_id():
     product = get_any_product()
+    category_branch_ids = get_category_branch_ids(product["categoryId"])
 
     products = get_products({"categoryId": product["categoryId"]})
     assert products
-    assert all(item["categoryId"] == product["categoryId"] for item in products)
+    assert any(item["categoryId"] == product["categoryId"] for item in products)
+    assert all(item["categoryId"] in category_branch_ids for item in products)
 
 
 @pytest.mark.positive
