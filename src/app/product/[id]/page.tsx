@@ -207,6 +207,12 @@ export default function ProductPage() {
 
   const categoryLine = categoryPath.map((item) => item.name).join(" - ");
   const availability = getAvailability(product?.stockQuantity ?? 0);
+  const scrollToSection = (sectionId: string) => {
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
 
   return (
     <>
@@ -268,128 +274,183 @@ export default function ProductPage() {
               </div>
             </section>
           ) : (
-            <section className="overflow-hidden rounded-[2rem] border border-white/60 bg-white/75 shadow-[0_25px_80px_rgba(244,114,182,0.14)] backdrop-blur">
-              <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
-                <div className="relative overflow-hidden bg-[linear-gradient(160deg,_rgba(255,238,220,0.96)_0%,_rgba(255,229,226,0.92)_52%,_rgba(255,255,255,0.96)_100%)] p-6 sm:p-8 lg:p-10">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.95),_transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(246,40,119,0.10),_transparent_30%)]" />
-                  <div className="relative flex h-full flex-col">
-                    <div className="relative mx-auto w-full max-w-xl">
-                      <img
-                        src={PRODUCT_PLACEHOLDER}
-                        alt={`Заглушка изображения товара ${product.name}`}
-                        className="aspect-[4/5] w-full rounded-[2rem] border border-white/80 bg-white object-cover shadow-[0_24px_70px_rgba(15,23,42,0.12)]"
-                      />
+            <>
+              <section className="overflow-hidden rounded-[2rem] border border-white/60 bg-white/75 shadow-[0_25px_80px_rgba(244,114,182,0.14)] backdrop-blur">
+                <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
+                  <div className="relative overflow-hidden bg-[linear-gradient(160deg,_rgba(255,238,220,0.96)_0%,_rgba(255,229,226,0.92)_52%,_rgba(255,255,255,0.96)_100%)] p-6 sm:p-8 lg:p-10">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.95),_transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(246,40,119,0.10),_transparent_30%)]" />
+                    <div className="relative flex h-full flex-col">
+                      <div className="relative mx-auto w-full max-w-xl">
+                        <img
+                          src={PRODUCT_PLACEHOLDER}
+                          alt={`Заглушка изображения товара ${product.name}`}
+                          className="aspect-[4/5] w-full rounded-[2rem] border border-white/80 bg-white object-cover shadow-[0_24px_70px_rgba(15,23,42,0.12)]"
+                        />
 
-                      <div className="absolute top-0 left-0 flex max-w-full flex-col items-start gap-3 p-4 sm:p-5">
-                        {categoryPath.length > 0 && (
-                          <span className="max-w-full rounded-full border border-white/85 bg-white/88 px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm">
-                            {categoryLine}
+                        <div className="absolute top-0 left-0 flex max-w-full flex-col items-start gap-3 p-4 sm:p-5">
+                          {categoryPath.length > 0 && (
+                            <span className="max-w-full rounded-full border border-white/85 bg-white/88 px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm">
+                              {categoryLine}
+                            </span>
+                          )}
+                          <span
+                            className={`rounded-full border px-4 py-2 text-sm font-semibold shadow-sm ${availability.classes}`}
+                          >
+                            {availability.label}
                           </span>
-                        )}
-                        <span
-                          className={`rounded-full border px-4 py-2 text-sm font-semibold shadow-sm ${availability.classes}`}
-                        >
-                          {availability.label}
-                        </span>
+                        </div>
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-6 p-6 sm:p-8 lg:p-10">
+                    <div className="space-y-4">
+                      <h1 className="text-3xl leading-tight font-bold text-slate-900 sm:text-4xl">
+                        {product.name}
+                      </h1>
+
+                      <div className="rounded-[1.75rem] border border-white/80 bg-[linear-gradient(135deg,_rgba(255,248,240,0.98)_0%,_rgba(255,233,240,0.96)_100%)] p-5 shadow-[0_18px_40px_rgba(244,114,182,0.10)]">
+                        <p className="text-xs font-semibold tracking-[0.28em] text-[#d55384] uppercase">
+                          Цена
+                        </p>
+                        <p className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">
+                          {formatPrice(product.currentPrice)}
+                        </p>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
+                          <div className="flex items-center gap-2 text-slate-500">
+                            <Star className="h-4 w-4 text-amber-500" />
+                            <span className="text-sm font-semibold">
+                              Рейтинг
+                            </span>
+                          </div>
+                          <p className="mt-2 text-2xl font-bold text-slate-900">
+                            {formatRating(product.averageRating)}
+                          </p>
+                        </div>
+
+                        <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
+                          <div className="flex items-center gap-2 text-slate-500">
+                            <BadgeCheck className="h-4 w-4 text-sky-600" />
+                            <span className="text-sm font-semibold">
+                              Продавец
+                            </span>
+                          </div>
+                          <p className="mt-2 text-lg font-bold text-slate-900">
+                            {product.sellerName}
+                          </p>
+                        </div>
+
+                        <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
+                          <div className="flex items-center gap-2 text-slate-500">
+                            <Package className="h-4 w-4 text-emerald-600" />
+                            <span className="text-sm font-semibold">
+                              Остаток
+                            </span>
+                          </div>
+                          <p className="mt-2 text-2xl font-bold text-slate-900">
+                            {product.stockQuantity}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+                      <h2 className="text-xl font-bold text-slate-900">
+                        Описание
+                      </h2>
+                      <p className="mt-4 text-base leading-7 text-slate-600">
+                        {product.description}
+                      </p>
+                    </section>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          scrollToSection("characteristics-section")
+                        }
+                        className="inline-flex min-h-14 items-center justify-center rounded-full border border-[#f3bfd0] bg-white px-6 text-base font-bold text-[#F62877] shadow-sm transition hover:bg-[#fff1f6]"
+                      >
+                        Характеристики
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => scrollToSection("reviews-section")}
+                        className="inline-flex min-h-14 items-center justify-center rounded-full border border-[#f3bfd0] bg-white px-6 text-base font-bold text-[#F62877] shadow-sm transition hover:bg-[#fff1f6]"
+                      >
+                        Отзывы
+                      </button>
+                    </div>
+
+                    <div className="flex items-stretch gap-3">
+                      <button
+                        type="button"
+                        className="inline-flex min-h-14 flex-1 items-center justify-center rounded-full bg-[linear-gradient(135deg,_#f62877_0%,_#ff7f50_100%)] px-6 text-base font-bold text-white shadow-[0_18px_40px_rgba(246,40,119,0.26)] transition-transform hover:-translate-y-0.5"
+                      >
+                        Добавить в корзину
+                      </button>
+
+                      <button
+                        type="button"
+                        aria-label={
+                          isWishlisted
+                            ? "Убрать из избранного"
+                            : "Добавить в избранное"
+                        }
+                        onClick={() => setIsWishlisted((prev) => !prev)}
+                        className={`inline-flex min-h-14 min-w-14 items-center justify-center rounded-full border transition-all ${
+                          isWishlisted
+                            ? "border-[#f7b5cc] bg-[#fff1f6] text-[#F62877] shadow-[0_12px_30px_rgba(246,40,119,0.16)]"
+                            : "border-slate-200 bg-slate-50 text-slate-500 shadow-sm hover:border-[#f3bfd0] hover:bg-white hover:text-[#F62877]"
+                        }`}
+                      >
+                        <Heart
+                          className="h-6 w-6"
+                          fill={isWishlisted ? "currentColor" : "none"}
+                        />
+                      </button>
                     </div>
                   </div>
                 </div>
+              </section>
 
-                <div className="flex flex-col gap-6 p-6 sm:p-8 lg:p-10">
-                  <div className="space-y-4">
-                    <h1 className="text-3xl leading-tight font-bold text-slate-900 sm:text-4xl">
-                      {product.name}
-                    </h1>
+              <section
+                id="characteristics-section"
+                className="rounded-[2rem] border border-white/60 bg-white/80 p-6 shadow-[0_20px_60px_rgba(244,114,182,0.10)] backdrop-blur sm:p-8"
+              >
+                <ProductCharacteristics
+                  characteristics={product.characteristics}
+                />
+              </section>
 
-                    <div className="rounded-[1.75rem] border border-white/80 bg-[linear-gradient(135deg,_rgba(255,248,240,0.98)_0%,_rgba(255,233,240,0.96)_100%)] p-5 shadow-[0_18px_40px_rgba(244,114,182,0.10)]">
-                      <p className="text-xs font-semibold tracking-[0.28em] text-[#d55384] uppercase">
-                        Цена
-                      </p>
-                      <p className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">
-                        {formatPrice(product.currentPrice)}
-                      </p>
+              <section
+                id="reviews-section"
+                className="rounded-[2rem] border border-white/60 bg-white/80 p-6 shadow-[0_20px_60px_rgba(244,114,182,0.10)] backdrop-blur sm:p-8"
+              >
+                <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+                  <h2 className="text-xl font-bold text-slate-900">Отзывы</h2>
+                  <p className="mt-4 text-base leading-7 text-slate-600">
+                    Блок отзывов пока в разработке. Здесь появятся оценки,
+                    комментарии покупателей и сортировка по полезности.
+                  </p>
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50/80 p-4">
+                      <div className="h-4 w-32 rounded-full bg-slate-200" />
+                      <div className="mt-4 h-3 w-full rounded-full bg-slate-200" />
+                      <div className="mt-2 h-3 w-5/6 rounded-full bg-slate-200" />
                     </div>
-
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
-                        <div className="flex items-center gap-2 text-slate-500">
-                          <Star className="h-4 w-4 text-amber-500" />
-                          <span className="text-sm font-semibold">Рейтинг</span>
-                        </div>
-                        <p className="mt-2 text-2xl font-bold text-slate-900">
-                          {formatRating(product.averageRating)}
-                        </p>
-                      </div>
-
-                      <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
-                        <div className="flex items-center gap-2 text-slate-500">
-                          <BadgeCheck className="h-4 w-4 text-sky-600" />
-                          <span className="text-sm font-semibold">
-                            Продавец
-                          </span>
-                        </div>
-                        <p className="mt-2 text-lg font-bold text-slate-900">
-                          {product.sellerName}
-                        </p>
-                      </div>
-
-                      <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
-                        <div className="flex items-center gap-2 text-slate-500">
-                          <Package className="h-4 w-4 text-emerald-600" />
-                          <span className="text-sm font-semibold">Остаток</span>
-                        </div>
-                        <p className="mt-2 text-2xl font-bold text-slate-900">
-                          {product.stockQuantity}
-                        </p>
-                      </div>
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50/80 p-4">
+                      <div className="h-4 w-28 rounded-full bg-slate-200" />
+                      <div className="mt-4 h-3 w-full rounded-full bg-slate-200" />
+                      <div className="mt-2 h-3 w-2/3 rounded-full bg-slate-200" />
                     </div>
-                  </div>
-
-                  <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-                    <h2 className="text-xl font-bold text-slate-900">
-                      Описание
-                    </h2>
-                    <p className="mt-4 text-base leading-7 text-slate-600">
-                      {product.description}
-                    </p>
-                  </section>
-
-                  <ProductCharacteristics
-                    characteristics={product.characteristics}
-                  />
-
-                  <div className="flex items-stretch gap-3">
-                    <button
-                      type="button"
-                      className="inline-flex min-h-14 flex-1 items-center justify-center rounded-full bg-[linear-gradient(135deg,_#f62877_0%,_#ff7f50_100%)] px-6 text-base font-bold text-white shadow-[0_18px_40px_rgba(246,40,119,0.26)] transition-transform hover:-translate-y-0.5"
-                    >
-                      Добавить в корзину
-                    </button>
-
-                    <button
-                      type="button"
-                      aria-label={
-                        isWishlisted
-                          ? "Убрать из избранного"
-                          : "Добавить в избранное"
-                      }
-                      onClick={() => setIsWishlisted((prev) => !prev)}
-                      className={`inline-flex min-h-14 min-w-14 items-center justify-center rounded-full border transition-all ${
-                        isWishlisted
-                          ? "border-[#f7b5cc] bg-[#fff1f6] text-[#F62877] shadow-[0_12px_30px_rgba(246,40,119,0.16)]"
-                          : "border-slate-200 bg-slate-50 text-slate-500 shadow-sm hover:border-[#f3bfd0] hover:bg-white hover:text-[#F62877]"
-                      }`}
-                    >
-                      <Heart
-                        className="h-6 w-6"
-                        fill={isWishlisted ? "currentColor" : "none"}
-                      />
-                    </button>
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            </>
           )}
         </div>
       </main>

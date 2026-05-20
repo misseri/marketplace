@@ -12,16 +12,11 @@ export default function ProductCharacteristics({
   if (characteristics.length === 0) {
     return (
       <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900">Характеристики</h2>
-            <p className="mt-2 text-sm text-slate-500">
-              Для этого товара характеристики пока не заполнены.
-            </p>
-          </div>
-          <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold tracking-[0.2em] text-slate-500 uppercase">
-            Скоро
-          </span>
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">Характеристики</h2>
+          <p className="mt-2 text-sm text-slate-500">
+            Для этого товара характеристики пока не заполнены.
+          </p>
         </div>
       </section>
     );
@@ -29,16 +24,8 @@ export default function ProductCharacteristics({
 
   return (
     <section className="overflow-hidden rounded-[1.75rem] border border-white/80 bg-[linear-gradient(135deg,_rgba(255,248,240,0.98)_0%,_rgba(255,240,245,0.98)_100%)] p-6 shadow-[0_18px_40px_rgba(244,114,182,0.10)]">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900">Характеристики</h2>
-          <p className="mt-2 text-sm text-slate-500">
-            Важные параметры товара в одном месте.
-          </p>
-        </div>
-        <span className="rounded-full border border-[#f6cad8] bg-white/85 px-3 py-1 text-xs font-semibold tracking-[0.2em] text-[#d55384] uppercase shadow-sm">
-          {characteristics.length} шт.
-        </span>
+      <div>
+        <h2 className="text-xl font-bold text-slate-900">Характеристики</h2>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
