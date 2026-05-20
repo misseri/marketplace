@@ -3,21 +3,31 @@ import { Check, Heart } from "lucide-react";
 import Link from "next/link";
 
 export interface CardProps {
+  productId?: number;
   title: string;
   price: number;
   image: string;
   isBought?: boolean;
   isFavorite?: boolean;
+  isFavoriteLoading?: boolean;
+  buyLabel?: string;
+  isBuyDisabled?: boolean;
+  showBuyFeedback?: boolean;
   onBuy: () => void;
   onFavorite: () => void;
 }
 
 export default function Card({
+  productId,
   title,
   price,
   image,
   isBought = false,
   isFavorite = false,
+  isFavoriteLoading = false,
+  buyLabel = "Купить",
+  isBuyDisabled = false,
+  showBuyFeedback = true,
   onBuy,
   onFavorite,
 }: CardProps) {
@@ -31,6 +41,11 @@ export default function Card({
 
   const handleBuyClick = () => {
     onBuy();
+
+    if (!showBuyFeedback) {
+      return;
+    }
+
     setIsShowingCheck(true);
     setTimeout(() => {
       setIsShowingCheck(false);
@@ -76,15 +91,19 @@ export default function Card({
           <button
             className="flex w-full cursor-pointer items-center justify-center rounded-md bg-[#F62877] px-1.5 py-1"
             onClick={handleBuyClick}
-            disabled={false}
+            disabled={isBuyDisabled}
           >
-            <span className="text-white max-sm:text-sm">Купить</span>
+            <span className="text-white max-sm:text-sm">{buyLabel}</span>
           </button>
         )}
 
         <button
           className="cursor-pointer rounded-md p-1 text-[#F62877]"
           onClick={onFavorite}
+          disabled={isFavoriteLoading}
+          aria-label={
+            isFavorite ? "Удалить из избранного" : "Добавить в избранное"
+          }
         >
           {isFavorite ? <Heart fill="#F62877" /> : <Heart />}
         </button>

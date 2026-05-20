@@ -31,6 +31,7 @@ import {
 } from "~/components/ui/dialog";
 import GoogleSVG from "./img/GoogleSVG";
 import { useEffect, useRef, useState } from "react";
+import { getCurrentUser, logout, startGoogleLogin } from "~/lib/auth";
 
 export interface HeaderSearchProduct {
   id: number;
@@ -63,17 +64,12 @@ export default function Header({
   const headerRef = useRef<HTMLDivElement>(null);
 
   async function checkAuth() {
-    const whoAmIUrl = "http://localhost:8080/auth/whoami";
     try {
-      const response = await fetch(whoAmIUrl, {
-        credentials: "include",
-        mode: "cors",
-      });
-      if (!response.ok) {
+      const user = await getCurrentUser();
+      if (!user) {
         setIsLogged(false);
         return;
       }
-      await response.json();
       setIsLogged(true);
     } catch (error) {
       console.error("Not logged:", error);
@@ -88,15 +84,12 @@ export default function Header({
   }, []);
 
   function handleLogging() {
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    startGoogleLogin();
   }
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:8080/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await logout();
     } finally {
       setIsLogged(false);
     }
@@ -125,10 +118,13 @@ export default function Header({
       ref={headerRef}
       className="mx-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-gray-400 py-3 sm:mx-8 sm:gap-4 sm:py-4 md:mx-12 md:gap-4.5 md:py-4.5 lg:mx-16 xl:mx-20"
     >
-      <div className="flex flex-shrink-0 gap-1.5 text-lg font-bold text-[#F62877] select-none sm:gap-2 sm:text-xl md:text-2xl">
+      <Link
+        href="/"
+        className="flex flex-shrink-0 gap-1.5 text-lg font-bold text-[#F62877] select-none sm:gap-2 sm:text-xl md:text-2xl"
+      >
         <Store className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
         <span className="whitespace-nowrap">PickMeMarket</span>
-      </div>
+      </Link>
 
       <div className="relative order-3 w-full min-w-0 rounded-2xl bg-neutral-200 px-3 py-1.5 sm:order-2 sm:w-auto sm:max-w-2xl sm:flex-1 sm:rounded-3xl sm:px-4 sm:py-2 md:px-5 lg:max-w-3xl xl:max-w-4xl">
         <div className="flex items-center gap-3 sm:gap-4 md:gap-5">
@@ -222,6 +218,14 @@ export default function Header({
             </Link>
           </li>
           <li className="h-6 w-6 sm:h-7 sm:w-7 md:h-[30px] md:w-[30px]">
+            <Link
+              href="/wishlist"
+              className="flex h-full w-full cursor-pointer items-center justify-center"
+            >
+              <Heart className="h-full w-full" />
+            </Link>
+          </li>
+          <li className="h-6 w-6 sm:h-7 sm:w-7 md:h-[30px] md:w-[30px]">
             {isLogged ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -241,8 +245,10 @@ export default function Header({
                     <DropdownMenuItem>
                       <ShoppingBasket /> Корзина
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Heart /> Избранное
+                    <DropdownMenuItem asChild>
+                      <Link href="/wishlist">
+                        <Heart /> Избранное
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Settings /> Настройки

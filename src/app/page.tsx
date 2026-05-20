@@ -5,25 +5,9 @@ import Header, {
   type HeaderSearchProduct,
 } from "./components/MainPageHeader/page";
 import Card from "./components/Card/page";
-
-type ApiProduct = {
-  id: number;
-  name: string;
-  description: string;
-  categoryId: number;
-  categoryName: string;
-  sellerId: number;
-  sellerName: string;
-  sellerRating: number | null;
-  currentPrice: number | null;
-  stockQuantity: number;
-  averageRating: number;
-  reviewCount: number;
-};
-
-type ProductsResponse = {
-  content?: ApiProduct[];
-};
+import { getCurrentUser, startGoogleLogin } from "~/lib/auth";
+import { type ApiProduct, searchProducts } from "~/lib/products";
+import { addToWishlist, getWishlist, removeFromWishlist } from "~/lib/wishlist";
 
 const PRODUCT_PLACEHOLDER =
   "data:image/svg+xml;utf8," +
@@ -38,22 +22,63 @@ const PRODUCT_PLACEHOLDER =
 
 export default function HomePage() {
   const [boughtItems, setBoughtItems] = useState<string[]>([]);
-  const [favoriteItems, setFavoriteItems] = useState<string[]>([]);
+  const [favoriteItems, setFavoriteItems] = useState<number[]>([]);
+  const [favoriteLoadingIds, setFavoriteLoadingIds] = useState<number[]>([]);
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
+  const [isLogged, setIsLogged] = useState(false);
 
   const handleBuy = (productId: string) => {
     setBoughtItems((prev) => [...prev, productId]);
   };
 
-  const handleFavorite = (productId: string) => {
-    setFavoriteItems((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId],
-    );
+  const handleFavorite = async (productId: number) => {
+    if (!isLogged) {
+      startGoogleLogin();
+      return;
+    }
+
+    setFavoriteLoadingIds((prev) => [...prev, productId]);
+
+    try {
+      if (favoriteItems.includes(productId)) {
+        await removeFromWishlist(productId);
+        setFavoriteItems((prev) => prev.filter((id) => id !== productId));
+      } else {
+        await addToWishlist(productId);
+        setFavoriteItems((prev) => [...prev, productId]);
+      }
+    } catch (error) {
+      console.error("Failed to update wishlist:", error);
+    } finally {
+      setFavoriteLoadingIds((prev) => prev.filter((id) => id !== productId));
+    }
   };
+
+  useEffect(() => {
+    const loadAuthAndWishlist = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (!user) {
+          setIsLogged(false);
+          setFavoriteItems([]);
+          return;
+        }
+
+        setIsLogged(true);
+
+        const wishlistPage = await getWishlist();
+        setFavoriteItems(wishlistPage.content.map((item) => item.id));
+      } catch (error) {
+        console.error("Failed to load auth state:", error);
+        setIsLogged(false);
+        setFavoriteItems([]);
+      }
+    };
+
+    void loadAuthAndWishlist();
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -62,29 +87,11 @@ export default function HomePage() {
       setSearchLoading(true);
 
       try {
-        const url = new URL("http://localhost:8080/products");
-        url.searchParams.set("page", "0");
-        url.searchParams.set("size", "24");
+        const nextProducts = await searchProducts(searchQuery);
 
-        const trimmedQuery = searchQuery.trim();
-        if (trimmedQuery) {
-          url.searchParams.set("query", trimmedQuery);
+        if (!controller.signal.aborted) {
+          setProducts(nextProducts);
         }
-
-        const response = await fetch(url.toString(), {
-          credentials: "include",
-          mode: "cors",
-          signal: controller.signal,
-        });
-
-        if (!response.ok) {
-          setProducts([]);
-          return;
-        }
-
-        const data: ProductsResponse | ApiProduct[] = await response.json();
-        const nextProducts = Array.isArray(data) ? data : (data.content ?? []);
-        setProducts(nextProducts);
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
           console.error("Failed to load products:", error);
@@ -137,13 +144,17 @@ export default function HomePage() {
           return (
             <div key={product.id} id={`product-${product.id}`}>
               <Card
+                productId={product.id}
                 title={product.name}
                 price={Number(product.currentPrice ?? 0)}
                 image={PRODUCT_PLACEHOLDER}
                 isBought={boughtItems.includes(productId)}
-                isFavorite={favoriteItems.includes(productId)}
+                isFavorite={favoriteItems.includes(product.id)}
+                isFavoriteLoading={favoriteLoadingIds.includes(product.id)}
                 onBuy={() => handleBuy(productId)}
-                onFavorite={() => handleFavorite(productId)}
+                onFavorite={() => {
+                  void handleFavorite(product.id);
+                }}
               />
             </div>
           );
