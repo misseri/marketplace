@@ -12,14 +12,11 @@ import {
   Star,
 } from "lucide-react";
 import { categoriesApi } from "~/api/categories";
-import {
-  productsApi,
-  type Product,
-  type ProductDetails,
-} from "~/api/products";
+import { productsApi, type Product, type ProductDetails } from "~/api/products";
 import CategoriesMenu from "~/features/categories/ui/CategoriesMenu";
 import type { HeaderSearchProduct } from "~/features/header/model";
 import MainPageHeader from "~/features/header/ui/MainPageHeader";
+import ProductCharacteristics from "~/features/products/ui/ProductCharacteristics";
 
 const PRODUCT_PLACEHOLDER =
   "data:image/svg+xml;utf8," +
@@ -87,7 +84,11 @@ async function findCategoryPath(
     }
 
     if (category.hasChildren) {
-      const nestedMatch = await findCategoryPath(targetId, category.id, nextTrail);
+      const nestedMatch = await findCategoryPath(
+        targetId,
+        category.id,
+        nextTrail,
+      );
       if (nestedMatch) {
         return nestedMatch.slice(-3);
       }
@@ -136,7 +137,11 @@ export default function ProductPage() {
 
         const path = await findCategoryPath(nextProduct.categoryId);
         if (!cancelled) {
-          setCategoryPath(path ?? [{ id: nextProduct.categoryId, name: nextProduct.categoryName }]);
+          setCategoryPath(
+            path ?? [
+              { id: nextProduct.categoryId, name: nextProduct.categoryName },
+            ],
+          );
         }
       } catch (error) {
         console.error("Failed to load product:", error);
@@ -298,7 +303,7 @@ export default function ProductPage() {
                     </h1>
 
                     <div className="rounded-[1.75rem] border border-white/80 bg-[linear-gradient(135deg,_rgba(255,248,240,0.98)_0%,_rgba(255,233,240,0.96)_100%)] p-5 shadow-[0_18px_40px_rgba(244,114,182,0.10)]">
-                      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d55384]">
+                      <p className="text-xs font-semibold tracking-[0.28em] text-[#d55384] uppercase">
                         Цена
                       </p>
                       <p className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">
@@ -320,7 +325,9 @@ export default function ProductPage() {
                       <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
                         <div className="flex items-center gap-2 text-slate-500">
                           <BadgeCheck className="h-4 w-4 text-sky-600" />
-                          <span className="text-sm font-semibold">Продавец</span>
+                          <span className="text-sm font-semibold">
+                            Продавец
+                          </span>
                         </div>
                         <p className="mt-2 text-lg font-bold text-slate-900">
                           {product.sellerName}
@@ -340,11 +347,17 @@ export default function ProductPage() {
                   </div>
 
                   <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-                    <h2 className="text-xl font-bold text-slate-900">Описание</h2>
+                    <h2 className="text-xl font-bold text-slate-900">
+                      Описание
+                    </h2>
                     <p className="mt-4 text-base leading-7 text-slate-600">
                       {product.description}
                     </p>
                   </section>
+
+                  <ProductCharacteristics
+                    characteristics={product.characteristics}
+                  />
 
                   <div className="flex items-stretch gap-3">
                     <button

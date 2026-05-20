@@ -1,6 +1,6 @@
-package com.marketplace.product.repository;
+package com.marketplace.characteristic.repository;
 
-import com.marketplace.product.model.ProductCharacteristic;
+import com.marketplace.characteristic.model.ProductCharacteristic;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 

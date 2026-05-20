@@ -1,4 +1,4 @@
-package com.marketplace.product.dto;
+package com.marketplace.characteristic.dto;
 
 public record ProductCharacteristicResponse(
         Integer id,

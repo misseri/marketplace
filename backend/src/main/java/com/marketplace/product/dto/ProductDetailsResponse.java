@@ -1,5 +1,7 @@
 package com.marketplace.product.dto;
 
+import com.marketplace.characteristic.dto.ProductCharacteristicResponse;
+
 import java.math.BigDecimal;
 import java.util.List;
 

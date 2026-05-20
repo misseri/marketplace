@@ -1,8 +1,8 @@
-package com.marketplace.product.service;
+package com.marketplace.characteristic.service;
 
-import com.marketplace.product.dto.ProductCharacteristicResponse;
-import com.marketplace.product.model.ProductCharacteristic;
-import com.marketplace.product.repository.ProductCharacteristicRepository;
+import com.marketplace.characteristic.dto.ProductCharacteristicResponse;
+import com.marketplace.characteristic.model.ProductCharacteristic;
+import com.marketplace.characteristic.repository.ProductCharacteristicRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

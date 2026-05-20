@@ -1,5 +1,6 @@
 package com.marketplace.product.service;
 
+import com.marketplace.characteristic.service.ProductCharacteristicService;
 import com.marketplace.category.service.CategoryService;
 import com.marketplace.product.dto.ProductCardResponse;
 import com.marketplace.product.dto.ProductDetailsResponse;
