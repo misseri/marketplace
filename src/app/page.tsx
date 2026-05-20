@@ -151,6 +151,7 @@ export default function HomePage() {
             return (
               <div key={product.id} id={`product-${product.id}`}>
                 <ProductCard
+                  id={product.id}
                   title={product.name}
                   price={Number(product.currentPrice ?? 0)}
                   image={PRODUCT_PLACEHOLDER}

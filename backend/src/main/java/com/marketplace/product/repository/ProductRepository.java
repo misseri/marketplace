@@ -196,5 +196,5 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     Optional<Product> findByIdAndActiveTrue(Integer id);
 
     @EntityGraph(attributePaths = {"category"})
-    List<Product> findAllByActiveTrue();
+    Page<Product> findAllByActiveTrue(Pageable pageable);
 }

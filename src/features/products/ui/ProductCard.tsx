@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check, Heart } from "lucide-react";
 
 export interface ProductCardProps {
+  id: number;
   title: string;
   price: number;
   image: string;
@@ -15,6 +16,7 @@ export interface ProductCardProps {
 }
 
 export default function ProductCard({
+  id,
   title,
   price,
   image,
@@ -41,7 +43,7 @@ export default function ProductCard({
 
   return (
     <div className="flex max-h-min max-w-60 flex-col justify-center gap-1 overflow-hidden rounded-2xl bg-white pb-2 shadow-md max-sm:max-h-min max-sm:min-w-40">
-      <Link href="/product">
+      <Link href={`/product/${id}`}>
         <img
           src={image || "no-image"}
           alt="card image"

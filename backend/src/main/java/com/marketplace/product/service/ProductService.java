@@ -22,6 +22,7 @@ import java.util.Map;
 public class ProductService {
 
     private static final int SEARCH_ID_FETCH_LIMIT = 1000;
+    private static final String PRODUCT_NOT_FOUND_MESSAGE = "Товар не найден";
 
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
@@ -91,7 +92,7 @@ public class ProductService {
 
     public ProductDetailsResponse getById(Integer id) {
         Product product = productRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "РўРѕРІР°СЂ РЅРµ РЅР°Р№РґРµРЅ"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
 
         ProductReviewSummary reviewStats = productReviewService.getReviewStatsByProductId(id);
 

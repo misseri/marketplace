@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 public class ProductSearchIndexSyncService {
 
     private static final Logger log = LoggerFactory.getLogger(ProductSearchIndexSyncService.class);
+    private static final int INDEX_BATCH_SIZE = 500;
 
     private final ProductRepository productRepository;
     private final ProductAliasRepository productAliasRepository;
@@ -63,28 +66,42 @@ public class ProductSearchIndexSyncService {
 
     public void reindexActiveProducts() {
         ensureIndex();
+        int indexedDocuments = 0;
+        int pageNumber = 0;
+        Page<Product> productPage;
 
-        List<Product> activeProducts = productRepository.findAllByActiveTrue();
-        List<Integer> productIds = activeProducts.stream()
-                .map(Product::getId)
-                .toList();
+        do {
+            productPage = productRepository.findAllByActiveTrue(PageRequest.of(pageNumber, INDEX_BATCH_SIZE));
+            List<Product> activeProducts = productPage.getContent();
 
-        Map<Integer, List<String>> aliasesByProductId = productAliasRepository.findAllByProduct_IdIn(productIds).stream()
-                .collect(Collectors.groupingBy(
-                        alias -> alias.getProduct().getId(),
-                        Collectors.mapping(ProductAlias::getAlias, Collectors.toList())
-                ));
+            if (activeProducts.isEmpty()) {
+                break;
+            }
 
-        List<ProductSearchDocument> documents = activeProducts.stream()
-                .map(product -> new ProductSearchDocument(
-                        product.getId(),
-                        product.getCategory().getId(),
-                        aliasesByProductId.getOrDefault(product.getId(), List.of())
-                ))
-                .toList();
+            List<Integer> productIds = activeProducts.stream()
+                    .map(Product::getId)
+                    .toList();
 
-        productSearchDocumentRepository.saveAll(documents);
-        log.info("Indexed {} products into Elasticsearch alias index", documents.size());
+            Map<Integer, List<String>> aliasesByProductId = productAliasRepository.findAllByProduct_IdIn(productIds).stream()
+                    .collect(Collectors.groupingBy(
+                            alias -> alias.getProduct().getId(),
+                            Collectors.mapping(ProductAlias::getAlias, Collectors.toList())
+                    ));
+
+            List<ProductSearchDocument> documents = activeProducts.stream()
+                    .map(product -> new ProductSearchDocument(
+                            product.getId(),
+                            product.getCategory().getId(),
+                            aliasesByProductId.getOrDefault(product.getId(), List.of())
+                    ))
+                    .toList();
+
+            productSearchDocumentRepository.saveAll(documents);
+            indexedDocuments += documents.size();
+            pageNumber++;
+        } while (productPage.hasNext());
+
+        log.info("Indexed {} products into Elasticsearch alias index", indexedDocuments);
     }
 
     private void ensureIndex() {

@@ -15,6 +15,17 @@ export interface Product {
   reviewCount: number;
 }
 
+export interface ProductCharacteristic {
+  id: number;
+  name: string;
+  value: string;
+}
+
+export interface ProductDetails extends Product {
+  active: boolean;
+  characteristics: ProductCharacteristic[];
+}
+
 export const productsApi = {
   async getProducts(params: {
     query?: string;
@@ -60,5 +71,24 @@ export const productsApi = {
     }
 
     return [];
+  },
+
+  async getProductById(id: number): Promise<ProductDetails | null> {
+    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+      credentials: "include",
+      mode: "cors",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data: unknown = await response.json();
+
+    if (typeof data !== "object" || data === null) {
+      return null;
+    }
+
+    return data as ProductDetails;
   },
 };

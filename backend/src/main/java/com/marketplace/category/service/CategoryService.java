@@ -23,6 +23,9 @@ import java.util.Set;
 @Transactional(readOnly = true)
 public class CategoryService {
 
+    private static final String CATEGORY_NOT_FOUND_MESSAGE =
+            "\u041a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u0430";
+
     private final CategoryRepository categoryRepository;
 
     public CategoryService(CategoryRepository categoryRepository) {
@@ -64,7 +67,7 @@ public class CategoryService {
 
     private Category requireCategory(Integer categoryId) {
         return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Категория не найдена"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, CATEGORY_NOT_FOUND_MESSAGE));
     }
 
     private CategoryResponse toResponse(Category category) {
