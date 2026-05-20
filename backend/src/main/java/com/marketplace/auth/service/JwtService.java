@@ -56,4 +56,15 @@ public class JwtService {
                 .equals("refresh");
     }
 
+    public boolean isAccessToken(String token) {
+
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("type")
+                .equals("access");
+    }
+
 }

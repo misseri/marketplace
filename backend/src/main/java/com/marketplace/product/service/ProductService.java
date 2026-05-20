@@ -57,9 +57,7 @@ public class ProductService {
     }
 
     public ProductDetailsResponse getById(Integer id) {
-        Product product = productRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Товар не найден"));
-
+        Product product = getActiveProductEntity(id);
         ProductReviewSummary reviewStats = productReviewService.getReviewStatsByProductId(id);
 
         return new ProductDetailsResponse(
@@ -78,6 +76,12 @@ public class ProductService {
                 reviewStats.reviewCount(),
                 productCharacteristicService.getCharacteristicsByProductId(id)
         );
+    }
+
+    public Product getActiveProductEntity(Integer id) {
+        Product product = productRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Товар не найден"));
+        return product;
     }
 
     private ProductCardResponse toCardResponse(

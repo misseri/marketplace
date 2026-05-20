@@ -2,6 +2,7 @@ package com.marketplace.auth.controller;
 
 
 import com.marketplace.auth.dto.UserResponse;
+import com.marketplace.auth.service.CurrentUserService;
 import com.marketplace.auth.model.Role;
 import com.marketplace.auth.model.User;
 import com.marketplace.auth.repository.UserRepository;
@@ -11,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,11 +21,14 @@ public class AuthController {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     public AuthController(JwtService jwtService,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          CurrentUserService currentUserService) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
+        this.currentUserService = currentUserService;
     }
 
     @PostMapping("/refresh")
@@ -57,18 +60,8 @@ public class AuthController {
 
 
     @GetMapping("/whoami")
-    public UserResponse whoami(HttpServletRequest request) {
-
-        Cookie[] cookies = request.getCookies();
-        System.out.println("Cookies from request: " + (cookies == null ? "null" : Arrays.toString(cookies)));
-
-        String token = getCookie(request, "access_token");
-
-        if (token == null) {
-            throw new RuntimeException("Access token missing");
-        }
-
-        Integer userId = jwtService.extractUserId(token);
+    public UserResponse whoami() {
+        Integer userId = currentUserService.getCurrentUserId();
 
         User user = userRepository.findById(userId).orElseThrow();
 
