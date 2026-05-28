@@ -9,7 +9,6 @@ import {
   LogOut,
   Menu,
   Search,
-  Settings,
   ShoppingBasket,
   ShoppingCart,
   Store,
@@ -56,7 +55,6 @@ export default function MainPageHeader({
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -103,19 +101,21 @@ export default function MainPageHeader({
   return (
     <header
       ref={headerRef}
-      className="mx-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-gray-400 py-3 sm:mx-8 sm:gap-4 sm:py-4 md:mx-12 md:gap-4.5 md:py-4.5 lg:mx-16 xl:mx-20"
+      className="relative z-40 mx-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-gray-400 py-3 sm:mx-8 sm:gap-4 sm:py-4 md:mx-12 md:gap-4.5 md:py-4.5 lg:mx-16 xl:mx-20"
     >
-      <div className="flex flex-shrink-0 select-none gap-1.5 text-lg font-bold text-[#F62877] sm:gap-2 sm:text-xl md:text-2xl">
+      <Link
+        href="/"
+        className="flex flex-shrink-0 select-none items-center gap-1.5 text-lg font-bold text-[#F62877] sm:gap-2 sm:text-xl md:text-2xl"
+      >
         <Store className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
         <span className="whitespace-nowrap">PickMeMarket</span>
-      </div>
+      </Link>
 
-      <div className="relative order-3 w-full min-w-0 rounded-2xl bg-neutral-200 px-3 py-1.5 sm:order-2 sm:w-auto sm:max-w-2xl sm:flex-1 sm:rounded-3xl sm:px-4 sm:py-2 md:px-5 lg:max-w-3xl xl:max-w-4xl">
+      <div className="relative order-3 z-50 w-full min-w-0 rounded-2xl bg-neutral-200 px-3 py-1.5 sm:order-2 sm:w-auto sm:max-w-2xl sm:flex-1 sm:rounded-3xl sm:px-4 sm:py-2 md:px-5 lg:max-w-3xl xl:max-w-4xl">
         <div className="flex items-center gap-3 sm:gap-4 md:gap-5">
           <Search className="h-5 w-5 flex-shrink-0 text-neutral-400 sm:h-5 sm:w-5" />
 
           <input
-            ref={searchInputRef}
             type="text"
             placeholder="Поиск товара"
             className="w-full bg-transparent text-sm text-black outline-none sm:text-base"
@@ -123,11 +123,9 @@ export default function MainPageHeader({
             onChange={(event) => onSearchChange(event.target.value)}
             onFocus={() => setIsSearchDropdownOpen(true)}
             onClick={() => {
-              if (!searchQuery) {
-                return;
+              if (searchQuery) {
+                setIsSearchDropdownOpen(true);
               }
-
-              setIsSearchDropdownOpen(true);
             }}
           />
 
@@ -148,7 +146,7 @@ export default function MainPageHeader({
         {isSearchDropdownOpen && searchQuery && (
           <>
             {!searchLoading && searchResults.length > 0 && (
-              <div className="absolute right-0.5 mt-1.5 w-full rounded-2xl bg-white p-2 shadow-md">
+              <div className="absolute left-0 right-0 top-full z-[80] mt-1.5 w-full rounded-2xl bg-white p-2 shadow-xl">
                 <ul className="max-h-60 overflow-y-auto text-sm">
                   {searchResults.map((product) => (
                     <li
@@ -170,13 +168,13 @@ export default function MainPageHeader({
             )}
 
             {searchLoading && (
-              <div className="absolute mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-md">
+              <div className="absolute left-0 top-full z-[80] mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-xl">
                 Загрузка...
               </div>
             )}
 
             {!searchLoading && searchResults.length === 0 && (
-              <div className="absolute mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-md">
+              <div className="absolute left-0 top-full z-[80] mt-1.5 rounded-2xl bg-white p-2 text-xs text-neutral-500 shadow-xl">
                 Ничего не найдено
               </div>
             )}
@@ -210,19 +208,22 @@ export default function MainPageHeader({
                     <CircleUser className="h-full w-full" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-40" align="end" alignOffset={-10}>
+                <DropdownMenuContent className="z-[90] w-44" align="end" alignOffset={-10}>
                   <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                      <CircleUser /> Профиль
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">
+                        <CircleUser /> Профиль
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <ShoppingBasket /> Корзина
+                    <DropdownMenuItem asChild>
+                      <Link href="/cart">
+                        <ShoppingBasket /> Корзина
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Heart /> Избранное
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings /> Настройки
+                    <DropdownMenuItem asChild>
+                      <Link href="/wishlist">
+                        <Heart /> Избранное
+                      </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />

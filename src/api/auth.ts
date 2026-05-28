@@ -1,17 +1,15 @@
 import { API_BASE_URL } from "./client";
+import { apiFetch } from "./http";
 
 export interface AuthUser {
-  id?: number;
-  email?: string;
-  name?: string;
+  id: number;
+  login: string;
+  roles: string[];
 }
 
 export const authApi = {
   async getCurrentUser(): Promise<AuthUser | null> {
-    const response = await fetch(`${API_BASE_URL}/auth/whoami`, {
-      credentials: "include",
-      mode: "cors",
-    });
+    const response = await apiFetch("/auth/whoami");
 
     if (!response.ok) {
       return null;
@@ -25,9 +23,8 @@ export const authApi = {
   },
 
   async logout(): Promise<void> {
-    await fetch(`${API_BASE_URL}/auth/logout`, {
+    await apiFetch("/auth/logout", {
       method: "POST",
-      credentials: "include",
     });
   },
 };

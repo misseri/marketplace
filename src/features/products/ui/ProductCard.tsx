@@ -9,9 +9,11 @@ export interface ProductCardProps {
   title: string;
   price: number;
   image: string;
+  stockQuantity?: number;
   isBought?: boolean;
   isFavorite?: boolean;
-  onBuy: () => void;
+  buyLabel?: string;
+  onBuy: () => Promise<void>;
   onFavorite: () => void;
 }
 
@@ -20,12 +22,17 @@ export default function ProductCard({
   title,
   price,
   image,
+  stockQuantity,
   isBought = false,
   isFavorite = false,
+  buyLabel = "Купить",
   onBuy,
   onFavorite,
 }: ProductCardProps) {
   const [isShowingCheck, setIsShowingCheck] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isOutOfStock = typeof stockQuantity === "number" && stockQuantity <= 0;
 
   useEffect(() => {
     if (!isBought) {
@@ -33,12 +40,21 @@ export default function ProductCard({
     }
   }, [isBought]);
 
-  const handleBuyClick = () => {
-    onBuy();
-    setIsShowingCheck(true);
-    window.setTimeout(() => {
-      setIsShowingCheck(false);
-    }, 1000);
+  const handleBuyClick = async () => {
+    if (isSubmitting || isBought || isOutOfStock) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onBuy();
+      setIsShowingCheck(true);
+      window.setTimeout(() => {
+        setIsShowingCheck(false);
+      }, 1000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -63,7 +79,6 @@ export default function ProductCard({
         {isShowingCheck ? (
           <button
             className="flex w-full items-center justify-center rounded-md bg-[#F62877] px-1.5 py-1"
-            onClick={handleBuyClick}
             disabled
           >
             <Check className="h-6 w-6 text-white max-sm:h-5 max-sm:w-5" />
@@ -71,17 +86,28 @@ export default function ProductCard({
         ) : isBought ? (
           <button
             className="flex w-full items-center justify-center rounded-md bg-[#f628779a] px-1.5 py-1"
-            onClick={handleBuyClick}
             disabled
           >
             <span className="text-white max-sm:text-sm">В корзине</span>
           </button>
+        ) : isOutOfStock ? (
+          <button
+            className="flex w-full items-center justify-center rounded-md bg-slate-300 px-1.5 py-1"
+            disabled
+          >
+            <span className="text-white max-sm:text-sm">Нет в наличии</span>
+          </button>
         ) : (
           <button
             className="flex w-full cursor-pointer items-center justify-center rounded-md bg-[#F62877] px-1.5 py-1"
-            onClick={handleBuyClick}
+            onClick={() => {
+              void handleBuyClick();
+            }}
+            disabled={isSubmitting}
           >
-            <span className="text-white max-sm:text-sm">Купить</span>
+            <span className="text-white max-sm:text-sm">
+              {isSubmitting ? "Добавляем..." : buyLabel}
+            </span>
           </button>
         )}
 

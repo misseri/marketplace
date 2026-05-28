@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { authApi } from "~/api/auth";
+import { cartApi } from "~/api/cart";
+import { ApiError } from "~/api/http";
+import { productsApi, type Product } from "~/api/products";
+import { wishlistApi } from "~/api/wishlist";
 import CategoriesMenu from "~/features/categories/ui/CategoriesMenu";
 import type { HeaderSearchProduct } from "~/features/header/model";
 import MainPageHeader from "~/features/header/ui/MainPageHeader";
 import ProductCard from "~/features/products/ui/ProductCard";
-import { productsApi, type Product } from "~/api/products";
 
 const PRODUCT_PLACEHOLDER =
   "data:image/svg+xml;utf8," +
@@ -20,7 +24,7 @@ const PRODUCT_PLACEHOLDER =
     </svg>
   `);
 
-export default function HomePage() {
+function HomePageContent() {
   const router = useRouter();
   const [boughtItems, setBoughtItems] = useState<string[]>([]);
   const [favoriteItems, setFavoriteItems] = useState<string[]>([]);
@@ -32,16 +36,33 @@ export default function HomePage() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId");
 
-  const handleBuy = (productId: string) => {
-    setBoughtItems((prev) => [...prev, productId]);
+  const handleProtectedActionError = (error: unknown) => {
+    if (error instanceof ApiError && error.status === 401) {
+      authApi.loginWithGoogle();
+      return;
+    }
+
+    console.error(error);
   };
 
-  const handleFavorite = (productId: string) => {
-    setFavoriteItems((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId],
+  const handleBuy = async (productId: string) => {
+    await cartApi.addItem(Number(productId), 1);
+    setBoughtItems((prev) =>
+      prev.includes(productId) ? prev : [...prev, productId],
     );
+  };
+
+  const handleFavorite = async (productId: string) => {
+    const numericProductId = Number(productId);
+
+    if (favoriteItems.includes(productId)) {
+      await wishlistApi.removeFromWishlist(numericProductId);
+      setFavoriteItems((prev) => prev.filter((id) => id !== productId));
+      return;
+    }
+
+    await wishlistApi.addToWishlist(numericProductId);
+    setFavoriteItems((prev) => [...prev, productId]);
   };
 
   useEffect(() => {
@@ -79,6 +100,57 @@ export default function HomePage() {
     };
   }, [searchQuery, categoryId]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    if (products.length === 0) {
+      setBoughtItems([]);
+      setFavoriteItems([]);
+      return;
+    }
+
+    void (async () => {
+      const user = await authApi.getCurrentUser();
+      if (!user) {
+        if (!cancelled) {
+          setBoughtItems([]);
+          setFavoriteItems([]);
+        }
+        return;
+      }
+
+      try {
+        const [cart, wishlistStatuses] = await Promise.all([
+          cartApi.getCart(),
+          Promise.allSettled(
+            products.map((product) => wishlistApi.getWishlistStatus(product.id)),
+          ),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        setBoughtItems(cart.items.map((item) => String(item.productId)));
+        setFavoriteItems(
+          wishlistStatuses.flatMap((result) =>
+            result.status === "fulfilled" && result.value.inWishlist
+              ? [String(result.value.productId)]
+              : [],
+          ),
+        );
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to sync cart/wishlist state:", error);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [products]);
+
   const handleSelectProduct = (productId: number) => {
     const productElement = document.getElementById(`product-${productId}`);
     productElement?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -107,10 +179,7 @@ export default function HomePage() {
         onOpenMenu={() => setIsMenuOpen(true)}
       />
 
-      <CategoriesMenu
-        isOpen={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-      />
+      <CategoriesMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <main className="my-5 flex w-full flex-col items-center px-4 sm:px-6 xl:px-10">
         {categoryId && (
@@ -135,12 +204,9 @@ export default function HomePage() {
 
           {!searchLoading && products.length === 0 && (
             <div className="mt-10 flex w-full flex-col items-center justify-center">
-              <p className="text-center text-xl text-neutral-500">
-                Товары не найдены
-              </p>
+              <p className="text-center text-xl text-neutral-500">Товары не найдены</p>
               <p className="mt-2 text-center text-sm text-neutral-400">
-                Попробуйте изменить поисковый запрос или выбрать другую
-                категорию
+                Попробуйте изменить поисковый запрос или выбрать другую категорию
               </p>
             </div>
           )}
@@ -155,10 +221,20 @@ export default function HomePage() {
                   title={product.name}
                   price={Number(product.currentPrice ?? 0)}
                   image={PRODUCT_PLACEHOLDER}
+                  stockQuantity={product.stockQuantity}
                   isBought={boughtItems.includes(productIdString)}
                   isFavorite={favoriteItems.includes(productIdString)}
-                  onBuy={() => handleBuy(productIdString)}
-                  onFavorite={() => handleFavorite(productIdString)}
+                  onBuy={async () => {
+                    try {
+                      await handleBuy(productIdString);
+                    } catch (error) {
+                      handleProtectedActionError(error);
+                      throw error;
+                    }
+                  }}
+                  onFavorite={() => {
+                    void handleFavorite(productIdString).catch(handleProtectedActionError);
+                  }}
                 />
               </div>
             );
@@ -166,5 +242,13 @@ export default function HomePage() {
         </div>
       </main>
     </>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center text-neutral-500">Загрузка...</div>}>
+      <HomePageContent />
+    </Suspense>
   );
 }

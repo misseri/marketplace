@@ -99,6 +99,8 @@ def assert_spring_error_response(response, expected_path):
     assert "timestamp" in payload
 
 
+# Проверяет базовый успешный сценарий обновления access token.
+# Ожидаем, что при валидном refresh token endpoint /auth/refresh отработает без ошибки.
 @pytest.mark.positive
 def test_refresh_with_valid_refresh_token_returns_200():
     # Базовый happy path для /auth/refresh:
@@ -111,6 +113,8 @@ def test_refresh_with_valid_refresh_token_returns_200():
     assert response.text == ""
 
 
+# Проверяет, что после успешного refresh backend действительно выставляет новый access_token в cookie.
+# Это защищает от регрессии, когда endpoint отвечает 200, но новый токен пользователю не выдается.
 @pytest.mark.positive
 def test_refresh_with_valid_refresh_token_sets_access_token_cookie():
     # Важный эффект refresh не только статус 200, но и выпуск нового access_token.
@@ -125,6 +129,8 @@ def test_refresh_with_valid_refresh_token_sets_access_token_cookie():
     assert response.cookies["access_token"]
 
 
+# Проверяет не только наличие access_token, но и его cookie-атрибуты безопасности.
+# Важно убедиться, что у cookie сохраняются HttpOnly, Path и корректный Max-Age.
 @pytest.mark.positive
 def test_refresh_sets_http_only_access_cookie_attributes():
     # Здесь проверяем уже не сам факт выдачи токена, а его cookie-настройки.
@@ -141,6 +147,8 @@ def test_refresh_sets_http_only_access_cookie_attributes():
     assert "Max-Age=900" in set_cookie
 
 
+# Проверяет смысл самой refresh-операции.
+# Новый access token должен выпускаться для того же пользователя, который был зашит в refresh token.
 @pytest.mark.positive
 def test_refresh_generates_access_token_for_same_subject():
     # Проверяем смысл refresh-операции:
@@ -157,6 +165,8 @@ def test_refresh_generates_access_token_for_same_subject():
     assert payload["exp"] > payload["iat"]
 
 
+# Проверяет, что лишние cookie в запросе не ломают сценарий refresh.
+# Backend должен ориентироваться именно на refresh_token, а не падать из-за посторонних значений.
 @pytest.mark.positive
 def test_refresh_ignores_extra_cookies_when_refresh_token_is_valid():
     # Реальный браузер отправляет не только auth-cookie.
@@ -180,6 +190,8 @@ def test_refresh_ignores_extra_cookies_when_refresh_token_is_valid():
     assert payload["type"] == "access"
 
 
+# Фиксирует текущее наблюдаемое поведение logout.
+# Сейчас logout уходит в редирект на OAuth-маршрут, и тест документирует этот контракт как есть.
 @pytest.mark.positive
 def test_logout_redirects_to_google_oauth_current_security_behavior():
     # Это не "правильный logout" в абстрактном смысле, а фиксация текущего поведения.
@@ -191,6 +203,8 @@ def test_logout_redirects_to_google_oauth_current_security_behavior():
     assert response.headers["Location"] == f"{BASE_URL}/oauth2/authorization/google"
 
 
+# Дополняет предыдущий logout-сценарий проверкой cookie.
+# Тест подтверждает, что при текущем поведении security-слой создает JSESSIONID.
 @pytest.mark.positive
 def test_logout_sets_jsessionid_cookie_current_security_behavior():
     # Этот тест дополняет предыдущий:
@@ -204,6 +218,8 @@ def test_logout_sets_jsessionid_cookie_current_security_behavior():
     assert "HttpOnly" in set_cookie
 
 
+# Проверяет текущее поведение endpoint /auth/whoami без access token.
+# Это негативный сценарий, который помогает зафиксировать фактический ответ API.
 @pytest.mark.negative
 def test_whoami_without_access_token_returns_current_api_behavior():
     # Этот тест нужен как документирование текущего дефекта:
@@ -214,6 +230,8 @@ def test_whoami_without_access_token_returns_current_api_behavior():
     assert_spring_error_response(response, "/auth/whoami")
 
 
+# Проверяет корректную обработку просроченного access token.
+# В этом сценарии ожидается стабильный ответ 401, а не внутренняя ошибка сервера.
 @pytest.mark.negative
 def test_whoami_with_expired_access_token_returns_401():
     # Здесь уже другой путь обработки:
@@ -227,6 +245,8 @@ def test_whoami_with_expired_access_token_returns_401():
     assert response.text == "ACCESS_TOKEN_EXPIRED"
 
 
+# Проверяет сценарий, когда токен формально похож на валидный, но подписан чужим secret.
+# Такой кейс важно отделять от полностью сломанного формата токена.
 @pytest.mark.negative
 def test_whoami_with_invalid_signature_returns_current_api_behavior():
     # Здесь токен похож на валидный по структуре, но подписан чужим secret.
@@ -244,6 +264,8 @@ def test_whoami_with_invalid_signature_returns_current_api_behavior():
     assert_spring_error_response(response, "/auth/whoami")
 
 
+# Проверяет отдельный класс ошибок: токен поврежден по формату и вообще не является корректным JWT.
+# Это помогает не смешивать ошибки подписи и ошибки структуры токена.
 @pytest.mark.negative
 def test_whoami_with_malformed_access_token_returns_current_api_behavior():
     # Здесь проверяем отдельный класс ошибки:
@@ -254,6 +276,8 @@ def test_whoami_with_malformed_access_token_returns_current_api_behavior():
     assert_spring_error_response(response, "/auth/whoami")
 
 
+# Проверяет сценарий, когда access token валиден, но пользователь из subject отсутствует в базе.
+# Такой тест отделяет проблемы JWT-валидации от проблем поиска пользователя.
 @pytest.mark.negative
 def test_whoami_with_nonexistent_user_returns_current_api_behavior():
     # В этом сценарии сам токен валиден, но user id из subject не существует в базе.
@@ -265,6 +289,8 @@ def test_whoami_with_nonexistent_user_returns_current_api_behavior():
     assert_spring_error_response(response, "/auth/whoami")
 
 
+# Проверяет негативный сценарий вызова /auth/refresh без refresh token.
+# Тест нужен как фиксация текущего контракта API при отсутствии обязательной cookie.
 @pytest.mark.negative
 def test_refresh_without_refresh_token_returns_current_api_behavior():
     # Базовый негативный сценарий для /auth/refresh:
@@ -275,6 +301,8 @@ def test_refresh_without_refresh_token_returns_current_api_behavior():
     assert_spring_error_response(response, "/auth/refresh")
 
 
+# Проверяет случай, когда в refresh_token передан access token.
+# Это отдельная негативная ветка: токен есть, но его тип не соответствует ожидаемому.
 @pytest.mark.negative
 def test_refresh_with_access_token_instead_of_refresh_token_returns_current_api_behavior():
     # Здесь cookie есть, но лежит токен неправильного типа.
@@ -287,6 +315,8 @@ def test_refresh_with_access_token_instead_of_refresh_token_returns_current_api_
     assert_spring_error_response(response, "/auth/refresh")
 
 
+# Проверяет корректную обработку просроченного refresh token.
+# В этом кейсе ожидается ответ 401 как отдельный управляемый сценарий.
 @pytest.mark.negative
 def test_refresh_with_expired_refresh_token_returns_401():
     # Просроченный refresh token идёт по отдельной ветке обработки:
@@ -299,6 +329,8 @@ def test_refresh_with_expired_refresh_token_returns_401():
     assert response.text == "ACCESS_TOKEN_EXPIRED"
 
 
+# Проверяет сценарий с подмененной подписью refresh token.
+# Такой тест нужен, чтобы отдельно контролировать реакцию backend на токен с чужим secret.
 @pytest.mark.negative
 def test_refresh_with_invalid_signature_returns_current_api_behavior():
     # Отдельно фиксируем кейс подменённой подписи:
@@ -316,6 +348,8 @@ def test_refresh_with_invalid_signature_returns_current_api_behavior():
     assert_spring_error_response(response, "/auth/refresh")
 
 
+# Проверяет сценарий, когда refresh token поврежден по формату.
+# Это отдельный негативный кейс, не совпадающий по смыслу с ошибкой подписи.
 @pytest.mark.negative
 def test_refresh_with_malformed_token_returns_current_api_behavior():
     # Этот кейс нужен отдельно от invalid_signature:
@@ -325,6 +359,8 @@ def test_refresh_with_malformed_token_returns_current_api_behavior():
     assert_spring_error_response(response, "/auth/refresh")
 
 
+# Проверяет случай, когда subject в refresh token нельзя преобразовать в числовой user id.
+# Такой тест помогает зафиксировать поведение backend на некорректный тип идентификатора.
 @pytest.mark.negative
 def test_refresh_with_non_numeric_subject_returns_current_api_behavior():
     # Backend ожидает, что subject можно преобразовать в Integer user id.

@@ -1,6 +1,7 @@
 package com.marketplace.product.repository;
 
 import com.marketplace.product.model.ProductReview;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,6 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductReviewRepository extends JpaRepository<ProductReview, Integer> {
+
+    @Modifying
+    @Query(value = """
+            delete from отзывы_товаров
+            where пользователь_id = :userId
+            """, nativeQuery = true)
+    void deleteByUserId(@Param("userId") Integer userId);
 
     interface ProductReviewStatsView {
         Integer getProductId();

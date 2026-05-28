@@ -11,8 +11,12 @@ import {
   SearchX,
   Star,
 } from "lucide-react";
+import { authApi } from "~/api/auth";
+import { cartApi } from "~/api/cart";
+import { ApiError } from "~/api/http";
 import { categoriesApi } from "~/api/categories";
 import { productsApi, type Product, type ProductDetails } from "~/api/products";
+import { wishlistApi } from "~/api/wishlist";
 import CategoriesMenu from "~/features/categories/ui/CategoriesMenu";
 import type { HeaderSearchProduct } from "~/features/header/model";
 import MainPageHeader from "~/features/header/ui/MainPageHeader";
@@ -111,6 +115,9 @@ export default function ProductPage() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [categoryPath, setCategoryPath] = useState<CategoryPathNode[]>([]);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isInCart, setIsInCart] = useState(false);
+  const [isCartLoading, setIsCartLoading] = useState(false);
+  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
 
   useEffect(() => {
     if (!Number.isInteger(productId) || productId <= 0) {
@@ -195,6 +202,47 @@ export default function ProductPage() {
     };
   }, [searchQuery]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!Number.isInteger(productId) || productId <= 0) {
+      return;
+    }
+
+    void (async () => {
+      const user = await authApi.getCurrentUser();
+      if (!user) {
+        if (!cancelled) {
+          setIsWishlisted(false);
+          setIsInCart(false);
+        }
+        return;
+      }
+
+      try {
+        const [wishlistStatus, cart] = await Promise.all([
+          wishlistApi.getWishlistStatus(productId),
+          cartApi.getCart(),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        setIsWishlisted(wishlistStatus.inWishlist);
+        setIsInCart(cart.items.some((item) => item.productId === productId));
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load product actions:", error);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [productId]);
+
   const headerResults: HeaderSearchProduct[] = useMemo(
     () =>
       searchResults.map((searchProduct) => ({
@@ -207,6 +255,41 @@ export default function ProductPage() {
 
   const categoryLine = categoryPath.map((item) => item.name).join(" - ");
   const availability = getAvailability(product?.stockQuantity ?? 0);
+
+  const handleProtectedActionError = (error: unknown) => {
+    if (error instanceof ApiError && error.status === 401) {
+      authApi.loginWithGoogle();
+      return;
+    }
+
+    console.error(error);
+  };
+
+  const handleAddToCart = async () => {
+    setIsCartLoading(true);
+    try {
+      await cartApi.addItem(productId, 1);
+      setIsInCart(true);
+    } finally {
+      setIsCartLoading(false);
+    }
+  };
+
+  const handleWishlistToggle = async () => {
+    setIsWishlistLoading(true);
+    try {
+      if (isWishlisted) {
+        await wishlistApi.removeFromWishlist(productId);
+        setIsWishlisted(false);
+      } else {
+        await wishlistApi.addToWishlist(productId);
+        setIsWishlisted(true);
+      }
+    } finally {
+      setIsWishlistLoading(false);
+    }
+  };
+
   const scrollToSection = (sectionId: string) => {
     document.getElementById(sectionId)?.scrollIntoView({
       behavior: "smooth",
@@ -322,9 +405,7 @@ export default function ProductPage() {
                         <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
                           <div className="flex items-center gap-2 text-slate-500">
                             <Star className="h-4 w-4 text-amber-500" />
-                            <span className="text-sm font-semibold">
-                              Рейтинг
-                            </span>
+                            <span className="text-sm font-semibold">Рейтинг</span>
                           </div>
                           <p className="mt-2 text-2xl font-bold text-slate-900">
                             {formatRating(product.averageRating)}
@@ -334,9 +415,7 @@ export default function ProductPage() {
                         <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
                           <div className="flex items-center gap-2 text-slate-500">
                             <BadgeCheck className="h-4 w-4 text-sky-600" />
-                            <span className="text-sm font-semibold">
-                              Продавец
-                            </span>
+                            <span className="text-sm font-semibold">Продавец</span>
                           </div>
                           <p className="mt-2 text-lg font-bold text-slate-900">
                             {product.sellerName}
@@ -346,9 +425,7 @@ export default function ProductPage() {
                         <div className="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
                           <div className="flex items-center gap-2 text-slate-500">
                             <Package className="h-4 w-4 text-emerald-600" />
-                            <span className="text-sm font-semibold">
-                              Остаток
-                            </span>
+                            <span className="text-sm font-semibold">Остаток</span>
                           </div>
                           <p className="mt-2 text-2xl font-bold text-slate-900">
                             {product.stockQuantity}
@@ -358,9 +435,7 @@ export default function ProductPage() {
                     </div>
 
                     <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-                      <h2 className="text-xl font-bold text-slate-900">
-                        Описание
-                      </h2>
+                      <h2 className="text-xl font-bold text-slate-900">Описание</h2>
                       <p className="mt-4 text-base leading-7 text-slate-600">
                         {product.description}
                       </p>
@@ -369,9 +444,7 @@ export default function ProductPage() {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <button
                         type="button"
-                        onClick={() =>
-                          scrollToSection("characteristics-section")
-                        }
+                        onClick={() => scrollToSection("characteristics-section")}
                         className="inline-flex min-h-14 items-center justify-center rounded-full border border-[#f3bfd0] bg-white px-6 text-base font-bold text-[#F62877] shadow-sm transition hover:bg-[#fff1f6]"
                       >
                         Характеристики
@@ -388,20 +461,31 @@ export default function ProductPage() {
                     <div className="flex items-stretch gap-3">
                       <button
                         type="button"
-                        className="inline-flex min-h-14 flex-1 items-center justify-center rounded-full bg-[linear-gradient(135deg,_#f62877_0%,_#ff7f50_100%)] px-6 text-base font-bold text-white shadow-[0_18px_40px_rgba(246,40,119,0.26)] transition-transform hover:-translate-y-0.5"
+                        disabled={isCartLoading || product.stockQuantity <= 0}
+                        onClick={() => {
+                          void handleAddToCart().catch(handleProtectedActionError);
+                        }}
+                        className="inline-flex min-h-14 flex-1 items-center justify-center rounded-full bg-[linear-gradient(135deg,_#f62877_0%,_#ff7f50_100%)] px-6 text-base font-bold text-white shadow-[0_18px_40px_rgba(246,40,119,0.26)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
                       >
-                        Добавить в корзину
+                        {isCartLoading
+                          ? "Добавляем..."
+                          : isInCart
+                            ? "Уже в корзине"
+                            : "Добавить в корзину"}
                       </button>
 
                       <button
                         type="button"
+                        disabled={isWishlistLoading}
                         aria-label={
                           isWishlisted
                             ? "Убрать из избранного"
                             : "Добавить в избранное"
                         }
-                        onClick={() => setIsWishlisted((prev) => !prev)}
-                        className={`inline-flex min-h-14 min-w-14 items-center justify-center rounded-full border transition-all ${
+                        onClick={() => {
+                          void handleWishlistToggle().catch(handleProtectedActionError);
+                        }}
+                        className={`inline-flex min-h-14 min-w-14 items-center justify-center rounded-full border transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
                           isWishlisted
                             ? "border-[#f7b5cc] bg-[#fff1f6] text-[#F62877] shadow-[0_12px_30px_rgba(246,40,119,0.16)]"
                             : "border-slate-200 bg-slate-50 text-slate-500 shadow-sm hover:border-[#f3bfd0] hover:bg-white hover:text-[#F62877]"
@@ -421,9 +505,7 @@ export default function ProductPage() {
                 id="characteristics-section"
                 className="rounded-[2rem] border border-white/60 bg-white/80 p-6 shadow-[0_20px_60px_rgba(244,114,182,0.10)] backdrop-blur sm:p-8"
               >
-                <ProductCharacteristics
-                  characteristics={product.characteristics}
-                />
+                <ProductCharacteristics characteristics={product.characteristics} />
               </section>
 
               <section
@@ -433,8 +515,7 @@ export default function ProductPage() {
                 <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
                   <h2 className="text-xl font-bold text-slate-900">Отзывы</h2>
                   <p className="mt-4 text-base leading-7 text-slate-600">
-                    Блок отзывов пока в разработке. Здесь появятся оценки,
-                    комментарии покупателей и сортировка по полезности.
+                    Блок отзывов пока в разработке. Здесь появятся оценки, комментарии покупателей и сортировка по полезности.
                   </p>
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-3xl border border-slate-200 bg-slate-50/80 p-4">
